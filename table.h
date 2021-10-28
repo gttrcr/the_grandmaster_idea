@@ -6,6 +6,8 @@
 #include <random>
 #include <tuple>
 
+#define TR_VALUE piece::value::king
+
 class table
 {
 private:
@@ -90,7 +92,7 @@ public:
         set('h', 8, piece::value::rook, piece::color::black);
     }
 
-    piece get(char x, unsigned int y, bool& is_out)
+    piece get(char x, unsigned int y, bool &is_out)
     {
         int x_int = x - 'a';
         int y_int = y - 1;
@@ -122,12 +124,23 @@ public:
         std::cout << "--------------------------------" << std::endl;
     }
 
-    std::vector<position> available_positions(position pos)
+    std::string to_string()
     {
-        return available_positions(pos.get_col(), pos.get_row());
+        bool is_out;
+        std::string ret = "";
+        for (unsigned char x = 'a'; x < 'i'; x++)
+            for (unsigned int y = 0; y < 8; y++)
+                ret += get(x, y, is_out).to_string();
+
+        return ret;
     }
 
-    std::vector<position> available_positions(const char x, const unsigned int y)
+    std::vector<position> available_positions(position pos, piece::value tr_value = piece::value::empty_value)
+    {
+        return available_positions(pos.get_col(), pos.get_row(), tr_value);
+    }
+
+    std::vector<position> available_positions(const char x, const unsigned int y, piece::value tr_value = piece::value::empty_value)
     {
         bool is_out;
         piece p = get(x, y, is_out);
@@ -137,7 +150,7 @@ public:
 
         switch (p.piece::get_value())
         {
-        case piece::value::pawn:  //something wrong?
+        case piece::value::pawn: //something wrong?
         {
             if (p.get_color() == piece::color::white)
             {
@@ -147,6 +160,11 @@ public:
                     ret.push_back(position(x, y + 1));
                     if (what_is(x, y + 2) == freedom::available)
                         ret.push_back(position(x, y + 2));
+                }
+                else if (what_is(x, y + 1) == freedom::out)
+                {
+                    move(x, y, x, y, false, tr_value);
+                    return available_positions(x, y);
                 }
             }
             else if (p.get_color() == piece::color::black)
@@ -158,10 +176,15 @@ public:
                     if (what_is(x, y - 2) == freedom::available)
                         ret.push_back(position(x, y - 2));
                 }
+                else if (what_is(x, y - 1) == freedom::out)
+                {
+                    move(x, y, x, y, false, tr_value);
+                    return available_positions(x, y);
+                }
             }
         }
         break;
-        case piece::value::rook:  //ok
+        case piece::value::rook: //ok
         {
             //free movement
             char pos_x = x;
@@ -188,7 +211,7 @@ public:
                 ret.push_back(position(pos_x, pos_y));
         }
         break;
-        case piece::value::knight:  //ok
+        case piece::value::knight: //ok
         {
             //free movement and eat something
             if (what_is(x + 1, y + 2) == freedom::available)
@@ -344,7 +367,7 @@ public:
 
         switch (p.piece::get_value())
         {
-        case piece::value::pawn:  //something wrong?
+        case piece::value::pawn: //something wrong?
         {
             if (p.get_color() == piece::color::white)
             {
@@ -364,12 +387,13 @@ public:
             }
         }
         break;
-        case piece::value::rook:  //ok
+        case piece::value::rook: //ok
         {
             //free movement
             char pos_x = x;
             unsigned int pos_y = y;
-            while (what_is(++pos_x, pos_y) == freedom::available);
+            while (what_is(++pos_x, pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -378,7 +402,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(--pos_x, pos_y) == freedom::available);
+            while (what_is(--pos_x, pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -387,7 +412,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(pos_x, ++pos_y) == freedom::available);
+            while (what_is(pos_x, ++pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -396,14 +422,15 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(pos_x, --pos_y) == freedom::available);
+            while (what_is(pos_x, --pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
                 ret.push_back(std::make_tuple(position(pos_x, pos_y), get(pos_x, pos_y, is_out)));
         }
         break;
-        case piece::value::knight:  //ok
+        case piece::value::knight: //ok
         {
             bool is_out;
             //eat something
@@ -430,7 +457,8 @@ public:
             //free movement
             char pos_x = x;
             unsigned int pos_y = y;
-            while (what_is(++pos_x, ++pos_y) == freedom::available);
+            while (what_is(++pos_x, ++pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -439,7 +467,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(--pos_x, --pos_y) == freedom::available);
+            while (what_is(--pos_x, --pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -448,7 +477,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(++pos_x, --pos_y) == freedom::available);
+            while (what_is(++pos_x, --pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -457,7 +487,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(--pos_x, ++pos_y) == freedom::available);
+            while (what_is(--pos_x, ++pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -469,7 +500,8 @@ public:
             //free movement
             char pos_x = x;
             unsigned int pos_y = y;
-            while (what_is(++pos_x, pos_y) == freedom::available);
+            while (what_is(++pos_x, pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -478,7 +510,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(--pos_x, pos_y) == freedom::available);
+            while (what_is(--pos_x, pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -487,7 +520,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(pos_x, ++pos_y) == freedom::available);
+            while (what_is(pos_x, ++pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -496,7 +530,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(pos_x, --pos_y) == freedom::available);
+            while (what_is(pos_x, --pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -505,7 +540,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(++pos_x, ++pos_y) == freedom::available);
+            while (what_is(++pos_x, ++pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -514,7 +550,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(--pos_x, --pos_y) == freedom::available);
+            while (what_is(--pos_x, --pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -523,7 +560,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(++pos_x, --pos_y) == freedom::available);
+            while (what_is(++pos_x, --pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -532,7 +570,8 @@ public:
             //free movement
             pos_x = x;
             pos_y = y;
-            while (what_is(--pos_x, ++pos_y) == freedom::available);
+            while (what_is(--pos_x, ++pos_y) == freedom::available)
+                ;
 
             //eat something
             if (what_is(pos_x, pos_y) == freedom::busy && get(pos_x, pos_y, is_out).get_color() != p.get_color())
@@ -581,12 +620,12 @@ public:
         return ret;
     }
 
-    void move(position p1, position p2)
+    std::string move(position p1, position p2, bool check = true, piece::value tr_value = piece::value::empty_value)
     {
-        move(p1.get_col(), p1.get_row(), p2.get_col(), p2.get_row());
+        return move(p1.get_col(), p1.get_row(), p2.get_col(), p2.get_row(), check, tr_value);
     }
 
-    void move(char x_i, unsigned int y_i, char x_f, unsigned int y_f, bool check = true)
+    std::string move(char x_i, unsigned int y_i, char x_f, unsigned int y_f, bool check = true, piece::value tr_value = piece::value::empty_value)
     {
         bool is_out;
         piece p = get(x_i, y_i, is_out);
@@ -617,10 +656,24 @@ public:
 
             if (ok)
             {
+                std::string ret = "";
+                unsigned char uch = position(x_i, y_i).to_uchar() << 4;
+                //position(x_f, y_f).to_uchar();
+
                 set(x_i, y_i);
+
+                if (tr_value != piece::value::empty_value)
+                    p = piece(tr_value, p.get_color());
+
                 set(x_f, y_f, p);
+
+                return ret;
             }
+
+            throw new std::exception();
         }
+
+        throw new std::exception();
     }
 
     //white (pawn, rook, knight, bishop, king, queen), black (pawn, rook, knight, bishop, king, queen)
@@ -633,9 +686,9 @@ public:
 
         std::random_device dev;
         std::mt19937 rng(dev());
-        std::uniform_int_distribution<std::mt19937::result_type> pos(0, 8);  //from 0 to 8
-        std::uniform_int_distribution<std::mt19937::result_type> rkb(0, 2);  // rook, knight, bishop from 0 to 2
-        std::uniform_int_distribution<std::mt19937::result_type> kq(0, 1);   //king, queen from 0 to 1
+        std::uniform_int_distribution<std::mt19937::result_type> pos(0, 8); //from 0 to 8
+        std::uniform_int_distribution<std::mt19937::result_type> rkb(0, 2); // rook, knight, bishop from 0 to 2
+        std::uniform_int_distribution<std::mt19937::result_type> kq(0, 1);  //king, queen from 0 to 1
         if (how_many == 0)
         {
             for (unsigned int i = 0; i < 12; i++)
@@ -700,5 +753,102 @@ public:
             }
 
         return ret;
+    }
+
+    static piece::color play(unsigned int &count, std::string &match)
+    {
+        table t;
+        bool w_go_on = false;
+        bool b_go_on = false;
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        piece w_queen = piece(piece::value::queen, piece::color::white);
+        piece b_queen = piece(piece::value::queen, piece::color::black);
+
+        while (true)
+        {
+            //white moves
+            std::tuple<piece, position> pp = std::make_tuple(piece(), position());
+            std::vector<position> av_pos;
+            std::vector<std::tuple<position, piece>> av_cap;
+            std::vector<std::tuple<piece, position>> dist = t.pieces(piece::color::white);
+            do
+            {
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, dist.size() - 1); //select a random element from dist
+                pp = dist[rnd_dist(rng)];
+                av_pos = t.available_positions(std::get<1>(pp), TR_VALUE);
+                av_cap = t.available_captures(std::get<1>(pp));
+            } while (av_pos.size() == 0 && av_cap.size() == 0);
+
+            std::uniform_int_distribution<std::mt19937::result_type> rnd_choice(0, 1); //select a random from pos and cap
+            unsigned int choice = rnd_choice(rng);
+            if ((choice == 0 && av_pos.size() != 0) || av_cap.size() == 0)
+            {
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, av_pos.size() - 1); //select a random element from av_pos
+                match += t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]);
+            }
+            else if ((choice == 1 && av_cap.size() != 0) || av_pos.size() == 0)
+            {
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, av_cap.size() - 1); //select a random element from av_cap
+                match += t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)]));
+            }
+
+            //check mate
+            w_go_on = false;
+            b_go_on = false;
+            dist = t.pieces();
+            for (unsigned int d = 0; d < dist.size(); d++)
+            {
+                if (std::get<0>(dist[d]) == w_queen)
+                    w_go_on = true;
+                if (std::get<0>(dist[d]) == b_queen)
+                    b_go_on = true;
+            }
+            if (!w_go_on)
+                return piece::color::black;
+            if (!b_go_on)
+                return piece::color::white;
+
+            //black moves
+            pp = std::make_tuple(piece(), position());
+            dist = t.pieces(piece::color::black);
+            do
+            {
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, dist.size() - 1); //select a random element from dist
+                pp = dist[rnd_dist(rng)];
+                av_pos = t.available_positions(std::get<1>(pp), TR_VALUE);
+                av_cap = t.available_captures(std::get<1>(pp));
+            } while (av_pos.size() == 0 && av_cap.size() == 0);
+
+            choice = rnd_choice(rng);
+            if ((choice == 0 && av_pos.size() != 0) || av_cap.size() == 0)
+            {
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, av_pos.size() - 1); //select a random element from av_pos
+                match += t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]);
+            }
+            else if ((choice == 1 && av_cap.size() != 0) || av_pos.size() == 0)
+            {
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, av_cap.size() - 1); //select a random element from av_cap
+                match += t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)]));
+            }
+
+            //check mate
+            w_go_on = false;
+            b_go_on = false;
+            dist = t.pieces();
+            for (unsigned int d = 0; d < dist.size(); d++)
+            {
+                if (std::get<0>(dist[d]) == w_queen)
+                    w_go_on = true;
+                if (std::get<0>(dist[d]) == b_queen)
+                    b_go_on = true;
+            }
+            if (!w_go_on)
+                return piece::color::black;
+            if (!b_go_on)
+                return piece::color::white;
+
+            count++;
+        }
     }
 };

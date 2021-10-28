@@ -22,28 +22,33 @@ public:
     };
 
 private:
-    value _price;
+    value _value;
     color _color;
 
 public:
-    piece(value price = value::empty_value, color color = color::empty_color)
+    piece(value value = value::empty_value, color color = color::empty_color)
     {
-        _price = price;
+        _value = value;
         _color = color;
     }
 
     value get_value()
     {
-        return _price;
+        return _value;
     }
 
     color get_color()
     {
         return _color;
     }
+
+    std::string to_string()
+    {
+        return std::to_string(_value) + std::to_string(_color);
+    }
 };
 
-inline bool operator==(piece& p1, piece& p2)
+inline bool operator==(piece &p1, piece &p2)
 {
     return p1.get_color() == p2.get_color() && p1.get_value() == p2.get_value();
 }

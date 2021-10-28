@@ -2,35 +2,42 @@
 #include <string>
 #include <chrono>
 #include <fstream>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <execution>
 
+#include "utils.h"
 #include "position.h"
 #include "piece.h"
 #include "table.h"
 
-//complexity O(n)
-void test_av_cap(unsigned int max_test)
+#define THREADS 1
+
+void test_av_cap(const unsigned int max_test)
 {
-    std::cout << "test_av_cap start" << std::endl;
-    
+    std::string test_name = "test_av_cap";
+    std::cout << test_name << " start" << std::endl;
+
     std::ofstream outfile;
-    outfile.open("test_av_cap.txt", std::ios_base::out | std::ios_base::trunc);
+    outfile.open(test_name + ".txt", std::ios_base::out | std::ios_base::trunc);
     outfile.close();
 
     table t;
     std::vector<std::tuple<
-        piece, //for each piece
-        unsigned int,  //number of this piece on table
-        unsigned int,  //number of available positions
-        unsigned int,  //number of available captures
+        piece,        //for each piece
+        unsigned int, //number of this piece on table
+        unsigned int, //number of available positions
+        unsigned int, //number of available captures
         std::tuple<
-        unsigned int,  //number of pawn to capture
-        unsigned int,  //number of rook to capture
-        unsigned int,  //number of knight to capture
-        unsigned int,  //number of bishop to capture
-        unsigned int,  //number of king to capture
-        unsigned int  //number of queen to capture
-        >
-        >> average;
+            unsigned int, //number of pawn to capture
+            unsigned int, //number of rook to capture
+            unsigned int, //number of knight to capture
+            unsigned int, //number of bishop to capture
+            unsigned int, //number of king to capture
+            unsigned int  //number of queen to capture
+            >>>
+        average;
 
     average.push_back(std::make_tuple(piece(piece::value::pawn, piece::color::white), 0, 0, 0, std::tuple<unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int>()));
     average.push_back(std::make_tuple(piece(piece::value::rook, piece::color::white), 0, 0, 0, std::tuple<unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int>()));
@@ -46,7 +53,7 @@ void test_av_cap(unsigned int max_test)
         std::vector<std::tuple<piece, position>> dist = t.pieces();
         for (unsigned int d = 0; d < dist.size(); d++)
         {
-            unsigned int pos = (unsigned int)(t.available_positions(std::get<1>(dist[d])).size());
+            unsigned int pos = (unsigned int)(t.available_positions(std::get<1>(dist[d]), TR_VALUE).size());
             std::vector<std::tuple<position, piece>> av_cap = t.available_captures(std::get<1>(dist[d]));
             unsigned int cap = (unsigned int)(av_cap.size());
             for (unsigned int r = 0; r < average.size(); r++)
@@ -80,13 +87,7 @@ void test_av_cap(unsigned int max_test)
             for (unsigned int r = 0; r < average.size(); r++)
             {
                 tmp += "(" + std::to_string(std::get<1>(average[r])) + " " + std::to_string(std::get<2>(average[r])) + " " + std::to_string(std::get<3>(average[r])) + " ";
-                tmp += "("
-                    + std::to_string(std::get<0>(std::get<4>(average[r]))) + " "
-                    + std::to_string(std::get<1>(std::get<4>(average[r]))) + " "
-                    + std::to_string(std::get<2>(std::get<4>(average[r]))) + " "
-                    + std::to_string(std::get<3>(std::get<4>(average[r]))) + " "
-                    + std::to_string(std::get<4>(std::get<4>(average[r]))) + " "
-                    + std::to_string(std::get<5>(std::get<4>(average[r]))) + ")) ";
+                tmp += "(" + std::to_string(std::get<0>(std::get<4>(average[r]))) + " " + std::to_string(std::get<1>(std::get<4>(average[r]))) + " " + std::to_string(std::get<2>(std::get<4>(average[r]))) + " " + std::to_string(std::get<3>(std::get<4>(average[r]))) + " " + std::to_string(std::get<4>(std::get<4>(average[r]))) + " " + std::to_string(std::get<5>(std::get<4>(average[r]))) + ")) ";
             }
             //std::cout << tmp << std::endl;
             str += tmp + "\n";
@@ -94,129 +95,142 @@ void test_av_cap(unsigned int max_test)
 
         if ((i % 10000) == 0)
         {
-            std::cout << "         \r" << (double)i * 100.0 / (double)max_test << "%\r";
-            outfile.open("test_av_cap.txt", std::ios_base::app);
+            std::cout << "         \r" << (double)i * 100.0 / (double)max_test << "%\r"
+                      << "\033[F" << std::endl;
+            outfile.open(test_name + ".txt", std::ios_base::app);
             outfile << str;
             outfile.close();
             str = "";
         }
     }
 
-    std::cout << "test_av_cap end" << std::endl;
+    std::cout << test_name << " end" << std::endl;
 }
 
-void test_match_duration(unsigned int max_test)
+void test_matches(const unsigned int max_test, const bool save_all_match = false)
 {
-    std::cout << "test_match_duration start" << std::endl;
+    std::string test_name = "test_matches";
+    std::cout << test_name << " start" << std::endl;
 
-    std::string str = "";
-    std::ofstream outfile;
-    outfile.open("test_match_duration.txt", std::ios_base::out | std::ios_base::trunc);
-    outfile.close();
-
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    piece w_queen = piece(piece::value::queen, piece::color::white);
-    piece b_queen = piece(piece::value::queen, piece::color::black);
-    for (unsigned int i = 1; i <= max_test; i++)
+    std::vector<std::tuple<unsigned int, unsigned int, unsigned int>> th_work_distribution;
+    for (unsigned int i = 0; i < THREADS; i++)
     {
-        table t;
-        bool w_go_on = false;
-        bool b_go_on = false;
-        unsigned int count = 0;
-        do
-        {
-            //white moves
-            std::tuple<piece, position> pp = std::make_tuple(piece(), position());
-            std::vector<position> av_pos;
-            std::vector<std::tuple<position, piece>> av_cap;
-            std::vector<std::tuple<piece, position>> dist = t.pieces(piece::color::white);
-            do
-            {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, dist.size() - 1);  //select a random element from dist
-                pp = dist[rnd_dist(rng)];
-                av_pos = t.available_positions(std::get<1>(pp));
-                av_cap = t.available_captures(std::get<1>(pp));
-            } while (av_pos.size() == 0 && av_cap.size() == 0);
-
-            std::uniform_int_distribution<std::mt19937::result_type> rnd_choice(0, 1);  //select a random from pos and cap
-            unsigned int choice = rnd_choice(rng);
-            if ((choice == 0 && av_pos.size() != 0) || av_cap.size() == 0)
-            {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, av_pos.size() - 1);  //select a random element from av_pos
-                t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]);
-            }
-            else if ((choice == 1 && av_cap.size() != 0) || av_pos.size() == 0)
-            {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, av_cap.size() - 1);  //select a random element from av_cap
-                t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)]));
-            }
-
-            //check mate
-            w_go_on = false;
-            b_go_on = false;
-            dist = t.pieces();
-            for (unsigned int d = 0; d < dist.size(); d++)
-            {
-                if (std::get<0>(dist[d]) == w_queen)
-                    w_go_on = true;
-                if (std::get<0>(dist[d]) == b_queen)
-                    b_go_on = true;
-            }
-            if (!w_go_on || !b_go_on)
-                break;
-
-            //black moves
-            pp = std::make_tuple(piece(), position());
-            dist = t.pieces(piece::color::black);
-            do
-            {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, dist.size() - 1);  //select a random element from dist
-                pp = dist[rnd_dist(rng)];
-                av_pos = t.available_positions(std::get<1>(pp));
-                av_cap = t.available_captures(std::get<1>(pp));
-            } while (av_pos.size() == 0 && av_cap.size() == 0);
-
-            choice = rnd_choice(rng);
-            if ((choice == 0 && av_pos.size() != 0) || av_cap.size() == 0)
-            {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, av_pos.size() - 1);  //select a random element from av_pos
-                t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]);
-            }
-            else if ((choice == 1 && av_cap.size() != 0) || av_pos.size() == 0)
-            {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, av_cap.size() - 1);  //select a random element from av_cap
-                t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)]));
-            }
-
-            //check mate
-            w_go_on = false;
-            b_go_on = false;
-            dist = t.pieces();
-            for (unsigned int d = 0; d < dist.size(); d++)
-            {
-                if (std::get<0>(dist[d]) == w_queen)
-                    w_go_on = true;
-                if (std::get<0>(dist[d]) == b_queen)
-                    b_go_on = true;
-            }
-            count++;
-        } while (w_go_on && b_go_on);
-
-        str += std::to_string(count) + "\n";
-        if ((i % 1000) == 0)
-            std::cout << "         \r" << (double)i * 100.0 / (double)max_test << "%\r";
+        unsigned int start = i * max_test / THREADS;
+        unsigned int stop = start + max_test / THREADS;
+        th_work_distribution.push_back(std::make_tuple(i, start, stop));
     }
 
-    outfile.open("test_match_duration.txt", std::ios_base::app);
-    outfile << str;
-    outfile.close();
+    std::for_each(
+        std::execution::par_unseq,
+        th_work_distribution.begin(),
+        th_work_distribution.end(),
+        [save_all_match](auto &&item)
+        {
+            unsigned int th_n = std::get<0>(item);
+            unsigned int start = std::get<1>(item);
+            unsigned int stop = std::get<2>(item);
+            unsigned int num_of_tests = stop - start;
+            unsigned int giga_file = 0 + 1000 * th_n;
 
-    std::cout << "test_match_duration end" << std::endl;
+            std::ofstream of_match_link;
+            std::string match_link_file = "match_link_#.txt";
+            std::ostream_iterator<std::string> of_match_link_it(of_match_link, "\n");
+
+            if (save_all_match)
+            {
+                of_match_link.open(utils::replace(match_link_file, "#", std::to_string(giga_file)) + ".txt", std::ios_base::out | std::ios_base::trunc);
+                of_match_link.close();
+                of_match_link.open(utils::replace(match_link_file, "#", std::to_string(giga_file)) + ".txt", std::ios_base::app);
+            }
+
+            std::vector<unsigned int> match_duration;
+            std::vector<std::string> matches;
+            for (unsigned int i = start; i <= stop; i++)
+            {
+                unsigned int count = 0;
+                std::string match = "";
+                piece::color win = table::play(count, match);
+                match_duration.push_back(count);
+                if (save_all_match)
+                    matches.push_back(match);
+
+                //if ((i % 1000) == 0)
+                //    std::cout
+                //        << "         \r" << (double)i * 100.0 / (double)num_of_tests << "%\r"
+                //        << "\033[F" << std::endl;
+
+                unsigned int s = matches.size();
+                if (save_all_match && (s > 100000 || s % num_of_tests == 0))
+                {
+                    unsigned long size = of_match_link.tellp();
+                    if (size > 1000000000)
+                    {
+                        of_match_link.close();
+                        giga_file++;
+                        of_match_link.open(utils::replace(match_link_file, "#", std::to_string(giga_file)) + ".txt", std::ios_base::out | std::ios_base::trunc);
+                        of_match_link.close();
+                        of_match_link.open(utils::replace(match_link_file, "#", std::to_string(giga_file)) + ".txt", std::ios_base::app);
+                        of_match_link_it = std::ostream_iterator<std::string>(of_match_link, "\n");
+                    }
+
+                    std::copy(matches.begin(), matches.end(), of_match_link_it);
+                    matches.clear();
+                }
+            }
+
+            of_match_link.close();
+
+            std::string match_duration_file = utils::replace("match_duration_#.txt", "#", std::to_string(th_n));
+            std::ofstream of_match_duration;
+            of_match_duration.open(match_duration_file, std::ios_base::out | std::ios_base::trunc);
+            of_match_duration.close();
+            of_match_duration.open(match_duration_file, std::ios_base::app);
+            std::ostream_iterator<unsigned int> of_match_duration_it(of_match_duration, "\n");
+            std::copy(match_duration.begin(), match_duration.end(), of_match_duration_it);
+            of_match_duration.close();
+        });
+
+    std::cout << test_name << " end" << std::endl;
+}
+
+void test_real_match()
+{
+    std::string test_name = "test_real_match";
+    std::cout << test_name << " start" << std::endl;
+
+    table t;
+    t.random();
+    t.draw();
+    std::string test = t.to_string();
+    std::vector<std::string> files = utils::files(".", std::regex("match_link_[0-9]+.txt"));
+
+    std::for_each(
+        std::execution::par_unseq,
+        files.begin(),
+        files.end(),
+        [test](auto &&item)
+        {
+            std::ifstream in_file(item);
+            std::string line;
+            while (std::getline(in_file, line))
+            {
+                std::istringstream iss(line);
+                table t;
+                for (unsigned int i = 0; i < line.length() - 1; i += 2)
+                {
+                    t.move(position(line[i]), position(line[i + 1]), false);
+                    if (test == t.to_string())
+                        std::cout << "SONO IO" << std::endl;
+                }
+            }
+        });
+
+    std::cout << test_name << " end" << std::endl;
 }
 
 int main()
 {
     //test_av_cap(1000000);
-    test_match_duration(1000000);
+    test_matches(60000000, true);
+    test_real_match();
 }
