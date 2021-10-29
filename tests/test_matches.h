@@ -82,7 +82,8 @@ void test_matches(const unsigned int max_test, const bool save_all_match = false
 
             of_match_link.close();
 
-            std::string match_duration_file = utils::replace("match_duration_#.bin", "#", std::to_string(th_n));
+            std::string match_duration_file = "match_duration_#.bin";
+            match_duration_file = utils::replace(match_duration_file, "#", std::to_string(th_n));
             std::ofstream of_match_duration;
             of_match_duration.open(match_duration_file, std::ios_base::out | std::ios_base::trunc);
             of_match_duration.close();

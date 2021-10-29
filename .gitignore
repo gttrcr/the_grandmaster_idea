@@ -10,3 +10,4 @@
 *.user
 *.bin
 *.filters
+/match_duration_*

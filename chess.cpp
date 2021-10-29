@@ -17,7 +17,7 @@
 #include "piece.h"
 #include "table.h"
 
-#define THREADS 5
+#define THREADS 8
 
 #include "tests/test_av_cap.h"
 #include "tests/test_matches.h"
@@ -27,5 +27,5 @@ int main()
 {
     //test_av_cap(1000000);
     test_matches(10000000, true);
-    test_real_match();
+    //test_real_match();
 }
