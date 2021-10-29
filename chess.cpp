@@ -26,6 +26,6 @@
 int main()
 {
     //test_av_cap(1000000);
-    test_matches(10000000, true);
-    //test_real_match();
+    //test_matches(10000000, true);
+    test_real_match();
 }
