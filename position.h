@@ -15,8 +15,8 @@ public:
 
 	position(char from_char)
 	{
-		_row = from_char % 10;
-		_col = (from_char - _row) / 10 + 'a';
+		_col = from_char % 8 + 'a';
+		_row = (from_char / 8) + 1;
 	}
 
 	position(char col, unsigned int row)

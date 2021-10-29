@@ -6,6 +6,11 @@
 #include <sstream>
 #include <string>
 #include <execution>
+#include <regex>
+#include <bitset>
+
+#define BITSET_SIZE 14
+#define MAX_BITSET_MATCH_SIZE 5000
 
 #include "utils.h"
 #include "position.h"
@@ -130,7 +135,7 @@ void test_matches(const unsigned int max_test, const bool save_all_match = false
             unsigned int start = std::get<1>(item);
             unsigned int stop = std::get<2>(item);
             unsigned int num_of_tests = stop - start;
-            unsigned int giga_file = 0 + 1000 * th_n;
+            unsigned int giga_file = 1000 * th_n;
 
             std::ofstream of_match_link;
             std::string match_link_file = "match_link_#.txt";
@@ -148,21 +153,27 @@ void test_matches(const unsigned int max_test, const bool save_all_match = false
             for (unsigned int i = start; i <= stop; i++)
             {
                 unsigned int count = 0;
-                std::string match = "";
+                std::bitset<MAX_BITSET_MATCH_SIZE> match;
                 piece::color win = table::play(count, match);
                 match_duration.push_back(count);
                 if (save_all_match)
-                    matches.push_back(match);
+                {
+                    std::string tmp = match.to_string();
+                    tmp = tmp.substr(tmp.size() - 14 * count, 14 * count);
+                    std::reverse(tmp.begin(), tmp.end());
+                    //matches.push_back(utils::bitstring_to_string(tmp));
+                    matches.push_back(tmp);
+                }
 
-                //if ((i % 1000) == 0)
-                //    std::cout
-                //        << "         \r" << (double)i * 100.0 / (double)num_of_tests << "%\r"
-                //        << "\033[F" << std::endl;
+                if (th_n == 0 && (i % 10000 == 0))
+                    std::cout
+                        << "         \r" << (double)i * 100.0 / (double)num_of_tests << "%\r"
+                        << "\033[F" << std::endl;
 
-                unsigned int s = matches.size();
+                unsigned int s = (unsigned int)(matches.size());
                 if (save_all_match && (s > 100000 || s % num_of_tests == 0))
                 {
-                    unsigned long size = of_match_link.tellp();
+                    unsigned long int size = (unsigned long int)(of_match_link.tellp());
                     if (size > 1000000000)
                     {
                         of_match_link.close();
@@ -197,30 +208,30 @@ void test_real_match()
 {
     std::string test_name = "test_real_match";
     std::cout << test_name << " start" << std::endl;
-
-    table t;
-    t.random();
-    t.draw();
-    std::string test = t.to_string();
-    std::vector<std::string> files = utils::files(".", std::regex("match_link_[0-9]+.txt"));
+    std::vector<std::string> files = utils::get_files(".", std::regex("match_link_[0-9]+.txt"));
 
     std::for_each(
-        std::execution::par_unseq,
+        std::execution::seq,
         files.begin(),
         files.end(),
-        [test](auto &&item)
+        [](auto&& item)
         {
             std::ifstream in_file(item);
             std::string line;
             while (std::getline(in_file, line))
             {
-                std::istringstream iss(line);
+                std::bitset<MAX_BITSET_MATCH_SIZE> bit_set(line);
+                //std::bitset<MAX_BITSET_MATCH_SIZE> bit_set = utils::string_to_bitset(line);
+                //string_to_bitset_2(line);
+                //std::cout << std::endl;
+                unsigned int length = bit_set.size() % BITSET_SIZE;
                 table t;
-                for (unsigned int i = 0; i < line.length() - 1; i += 2)
+                for (unsigned int i = 0; i < bit_set.size(); i += BITSET_SIZE)
                 {
-                    t.move(position(line[i]), position(line[i + 1]), false);
-                    if (test == t.to_string())
-                        std::cout << "SONO IO" << std::endl;
+                    char from = bit_set[i + 5] + 2 * bit_set[i + 4] + 4 * bit_set[i + 3] + 8 * bit_set[i + 2] + 16 * bit_set[i + 1] + 32 * bit_set[i + 0];
+                    char to = bit_set[i + 11] + 2 * bit_set[i + 10] + 4 * bit_set[i + 9] + 8 * bit_set[i + 8] + 16 * bit_set[i + 7] + 32 * bit_set[i + 6];
+                    t.move(position(from), position(to), false);
+                    t.draw();
                 }
             }
         });
@@ -231,6 +242,6 @@ void test_real_match()
 int main()
 {
     //test_av_cap(1000000);
-    test_matches(60000000, true);
+    test_matches(100, true);
     test_real_match();
 }

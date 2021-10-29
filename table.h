@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <random>
 #include <tuple>
+#include <bitset>
 
 #define TR_VALUE piece::value::king
 
@@ -12,6 +13,9 @@ class table
 {
 private:
     piece _t[8][8];
+    inline static piece w_queen = piece(piece::value::queen, piece::color::white);
+    inline static piece b_queen = piece(piece::value::queen, piece::color::black);
+    inline static std::random_device dev;
 
     enum freedom
     {
@@ -620,12 +624,12 @@ public:
         return ret;
     }
 
-    std::string move(position p1, position p2, bool check = true, piece::value tr_value = piece::value::empty_value)
+    std::bitset<BITSET_SIZE> move(position p1, position p2, bool check = true, piece::value tr_value = piece::value::empty_value)
     {
         return move(p1.get_col(), p1.get_row(), p2.get_col(), p2.get_row(), check, tr_value);
     }
 
-    std::string move(char x_i, unsigned int y_i, char x_f, unsigned int y_f, bool check = true, piece::value tr_value = piece::value::empty_value)
+    std::bitset<BITSET_SIZE> move(char x_i, unsigned int y_i, char x_f, unsigned int y_f, bool check = true, piece::value tr_value = piece::value::empty_value)
     {
         bool is_out;
         piece p = get(x_i, y_i, is_out);
@@ -656,18 +660,22 @@ public:
 
             if (ok)
             {
-                std::string ret = "";
-                unsigned char uch = position(x_i, y_i).to_uchar() << 4;
-                //position(x_f, y_f).to_uchar();
+                std::bitset<BITSET_SIZE> bit_set{position(x_i, y_i).to_uchar()};
+                bit_set <<= 6;
+                bit_set |= position(x_f, y_f).to_uchar();
+                bit_set <<= 2;
 
                 set(x_i, y_i);
 
                 if (tr_value != piece::value::empty_value)
+                {
                     p = piece(tr_value, p.get_color());
+                    bit_set |= (tr_value - 2);
+                }
 
                 set(x_f, y_f, p);
 
-                return ret;
+                return bit_set;
             }
 
             throw new std::exception();
@@ -755,26 +763,24 @@ public:
         return ret;
     }
 
-    static piece::color play(unsigned int &count, std::string &match)
+    static piece::color play(unsigned int &count, std::bitset<MAX_BITSET_MATCH_SIZE> &match)
     {
         table t;
         bool w_go_on = false;
         bool b_go_on = false;
-        std::random_device dev;
         std::mt19937 rng(dev());
-        piece w_queen = piece(piece::value::queen, piece::color::white);
-        piece b_queen = piece(piece::value::queen, piece::color::black);
 
         while (true)
         {
             //white moves
+            count++;
             std::tuple<piece, position> pp = std::make_tuple(piece(), position());
             std::vector<position> av_pos;
             std::vector<std::tuple<position, piece>> av_cap;
             std::vector<std::tuple<piece, position>> dist = t.pieces(piece::color::white);
             do
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, dist.size() - 1); //select a random element from dist
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, (int)dist.size() - 1); //select a random element from dist
                 pp = dist[rnd_dist(rng)];
                 av_pos = t.available_positions(std::get<1>(pp), TR_VALUE);
                 av_cap = t.available_captures(std::get<1>(pp));
@@ -784,13 +790,13 @@ public:
             unsigned int choice = rnd_choice(rng);
             if ((choice == 0 && av_pos.size() != 0) || av_cap.size() == 0)
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, av_pos.size() - 1); //select a random element from av_pos
-                match += t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]);
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, (int)av_pos.size() - 1); //select a random element from av_pos
+                utils::bitset_merge(match, t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]));
             }
             else if ((choice == 1 && av_cap.size() != 0) || av_pos.size() == 0)
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, av_cap.size() - 1); //select a random element from av_cap
-                match += t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)]));
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, (int)av_cap.size() - 1); //select a random element from av_cap
+                utils::bitset_merge(match, t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)])));
             }
 
             //check mate
@@ -810,11 +816,12 @@ public:
                 return piece::color::white;
 
             //black moves
+            count++;
             pp = std::make_tuple(piece(), position());
             dist = t.pieces(piece::color::black);
             do
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, dist.size() - 1); //select a random element from dist
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, (int)dist.size() - 1); //select a random element from dist
                 pp = dist[rnd_dist(rng)];
                 av_pos = t.available_positions(std::get<1>(pp), TR_VALUE);
                 av_cap = t.available_captures(std::get<1>(pp));
@@ -823,13 +830,13 @@ public:
             choice = rnd_choice(rng);
             if ((choice == 0 && av_pos.size() != 0) || av_cap.size() == 0)
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, av_pos.size() - 1); //select a random element from av_pos
-                match += t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]);
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, (int)av_pos.size() - 1); //select a random element from av_pos
+                utils::bitset_merge(match, t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]));
             }
             else if ((choice == 1 && av_cap.size() != 0) || av_pos.size() == 0)
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, av_cap.size() - 1); //select a random element from av_cap
-                match += t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)]));
+                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, (int)av_cap.size() - 1); //select a random element from av_cap
+                utils::bitset_merge(match, t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)])));
             }
 
             //check mate
@@ -847,8 +854,6 @@ public:
                 return piece::color::black;
             if (!b_go_on)
                 return piece::color::white;
-
-            count++;
         }
     }
 };
