@@ -75,12 +75,4 @@ namespace utils
             bitset_merge(ret, std::bitset<8>(_char));
         return ret;
     }
-
-    //std::string string_to_bitset_2(std::string& string)
-    //{
-    //    std::string ret = "";
-    //    const char* testCharArray = string.c_str();
-    //    for (int i = 0; testCharArray[i] != '\0'; i++)
-    //        std::cout << (int)testCharArray[i] << " ";
-    //}
 }

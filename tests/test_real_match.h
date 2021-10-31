@@ -1,10 +1,15 @@
 #pragma once
 
-void test_real_match()
+void test_3_real_match()
 {
     std::string test_name = "test_real_match";
     std::cout << test_name << " start" << std::endl;
     std::vector<std::string> files = utils::get_files(".", std::regex("match_link_[0-9]+.bin"));
+    std::vector<std::string> files_th;
+    for (unsigned int i = 0; i < THREADS; i++)
+    {
+
+    }
 
     std::for_each(
         std::execution::par_unseq,
@@ -16,10 +21,10 @@ void test_real_match()
             std::string line;
             while (std::getline(in_file, line))
             {
+                //std::cout << line << std::endl;
                 std::bitset<MAX_BITSET_MATCH_SIZE> bit_set(line);
                 //std::bitset<MAX_BITSET_MATCH_SIZE> bit_set = utils::string_to_bitset(line);
-                //string_to_bitset_2(line);
-                //std::cout << std::endl;
+                //std::cout << bit_set << std::endl;
                 unsigned int length = bit_set.size() % BITSET_SIZE;
                 table t;
                 for (unsigned int i = 0; i < bit_set.size(); i += BITSET_SIZE)

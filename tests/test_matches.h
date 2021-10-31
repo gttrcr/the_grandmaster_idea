@@ -1,9 +1,11 @@
 #pragma once
 
-void test_matches(const unsigned int max_test, const bool save_all_match = false)
+void test_2_matches(const unsigned int max_test, const bool save_all_match = false)
 {
     std::string test_name = "test_matches";
-    std::cout << test_name << " start" << std::endl;
+    std::cout << test_name << " start, max_test " << max_test << ", save_all_match " << save_all_match << std::endl;
+    if (max_test % THREADS != 0)
+        std::cout << max_test << " is not a integer multiple of " << THREADS << " hence the test may be incorrect or incomplete" << std::endl;
 
     std::vector<std::tuple<unsigned int, unsigned int, unsigned int>> th_work_distribution;
     for (unsigned int i = 0; i < THREADS; i++)
@@ -46,10 +48,11 @@ void test_matches(const unsigned int max_test, const bool save_all_match = false
                 match_duration.push_back(count);
                 if (save_all_match)
                 {
+                    unsigned int length = BITSET_SIZE * count;
                     std::string tmp = match.to_string();
-                    tmp = tmp.substr(tmp.size() - 14 * count, 14 * count);
+                    tmp = tmp.substr(tmp.size() - length, length);
                     std::reverse(tmp.begin(), tmp.end());
-                    //matches.push_back(utils::bitstring_to_string(tmp));
+                    //matches.push_back(std::to_string(length) + " " + utils::bitstring_to_string(tmp));
                     matches.push_back(tmp);
                 }
 

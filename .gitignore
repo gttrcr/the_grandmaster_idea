@@ -11,3 +11,4 @@
 *.bin
 *.filters
 /match_duration_*
+*.dat

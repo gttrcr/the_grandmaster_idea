@@ -1,9 +1,9 @@
 #pragma once
 
-void test_av_cap(const unsigned int max_test)
+void test_1_av_cap(const unsigned int max_test)
 {
     std::string test_name = "test_av_cap";
-    std::cout << test_name << " start" << std::endl;
+    std::cout << test_name << " start, max_test " << max_test << std::endl;
 
     std::ofstream outfile;
     outfile.open(test_name + ".dat", std::ios_base::out | std::ios_base::trunc);
