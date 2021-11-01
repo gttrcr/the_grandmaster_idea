@@ -22,8 +22,35 @@
 #include "tests/test_matches.h"
 #include "tests/test_real_match.h"
 
+void show_help()
+{
+
+}
+
 int main(int argc, char* argv[])
 {
+    std::cout << "Threads " << THREADS << std::endl;
+    std::cout << "Bitset size " << BITSET_SIZE << std::endl;
+    std::cout << "Compression offset " << COMPRESSION_OFFSET << std::endl;
+    std::cout << "Max bitset match size " << MAX_BITSET_MATCH_SIZE << std::endl;
+
+    if (argc == 1)
+        show_help();
+
+    //set global execution variable
+    for (unsigned int i = 1; i < argc; i++)
+    {
+        std::string cmd = argv[i];
+        //set the number of threads
+        if (cmd == "-t")
+        {
+
+        }
+        if (cmd == "-h")
+            show_help();
+    }
+
+    //run tests
     for (unsigned int i = 1; i < argc; i++)
     {
         std::string cmd = argv[i];
