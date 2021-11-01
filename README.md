@@ -33,7 +33,8 @@ movements    -> |white from|white to|white change|black from|black to|black chan
 positions    -> |    A4    |   A5   |     00     |    G6    |   E5   |     00     |
 indexes      -> |    24    |   32   |     00     |    46    |   36   |     00     |
 binary value -> |  011000  | 100000 |     00     |  101110  | 100100 |     00     |
-formatted binary value -> |0110001|0000000|1011101|0010000|
-ascii string (+32)     -> |   Q   |[SPACE]|   }   |   0   |
+-----------------------------------------------------------------------------------
+formatted binary value  -> |0110001|0000000|1011101|0010000|
+ascii string (value+32) -> |   Q   |[SPACE]|   }   |   0   |
 ```
-Hence the movement: white pawn A4->A5, black knight G6->E5 is stored inside the string 'Q }0'.
+Hence the information: white pawn A4->A5 and black knight G6->E5 is stored inside the string 'Q }0'.
