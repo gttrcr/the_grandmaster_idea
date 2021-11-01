@@ -1,5 +1,21 @@
 #pragma once
 
+void save(unsigned int& giga_file, const std::string& match_link_file, std::ofstream& of_match_link, std::vector<std::string>& matches, std::ostream_iterator<std::string>& of_match_link_it)
+{
+    if ((unsigned long int)(of_match_link.tellp()) > 1000000000)
+    {
+        of_match_link.close();
+        giga_file++;
+        of_match_link.open(utils::replace(match_link_file, "#", std::to_string(giga_file)) + ".bin", std::ios_base::out | std::ios_base::trunc);
+        of_match_link.close();
+        of_match_link.open(utils::replace(match_link_file, "#", std::to_string(giga_file)) + ".bin", std::ios_base::app);
+        of_match_link_it = std::ostream_iterator<std::string>(of_match_link, "\n");
+    }
+
+    std::copy(matches.begin(), matches.end(), of_match_link_it);
+    matches.clear();
+}
+
 void test_2_matches(const unsigned int max_test, const bool save_all_match = false)
 {
     std::string test_name = "test_matches";
@@ -28,7 +44,7 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
             unsigned int giga_file = 1000 * th_n;
 
             std::ofstream of_match_link;
-            std::string match_link_file = "match_link_#.bin";
+            const std::string match_link_file = "match_link_#.bin";
             std::ostream_iterator<std::string> of_match_link_it(of_match_link, "\n");
 
             if (save_all_match)
@@ -40,7 +56,7 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
 
             std::vector<unsigned int> match_duration;
             std::vector<std::string> matches;
-            for (unsigned int i = start; i <= stop; i++)
+            for (unsigned int i = start; i < stop; i++)
             {
                 unsigned int count = 0;
                 std::bitset<MAX_BITSET_MATCH_SIZE> match;
@@ -48,12 +64,12 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
                 match_duration.push_back(count);
                 if (save_all_match)
                 {
-                    unsigned int length = BITSET_SIZE * count;
                     std::string tmp = match.to_string();
+                    unsigned int length = BITSET_SIZE * count;
                     tmp = tmp.substr(tmp.size() - length, length);
                     std::reverse(tmp.begin(), tmp.end());
-                    //matches.push_back(std::to_string(length) + " " + utils::bitstring_to_string(tmp));
-                    matches.push_back(tmp);
+                    matches.push_back(utils::bitstring_to_string(tmp));
+                    //matches.push_back(tmp);
                 }
 
                 if (th_n == 0 && (i % 1000 == 0))
@@ -64,24 +80,12 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
                     ;
 #endif
 
-                unsigned int s = (unsigned int)(matches.size());
-                if (save_all_match && (s > 100000 || s % num_of_tests == 0))
-                {
-                    unsigned long int size = (unsigned long int)(of_match_link.tellp());
-                    if (size > 1000000000)
-                    {
-                        of_match_link.close();
-                        giga_file++;
-                        of_match_link.open(utils::replace(match_link_file, "#", std::to_string(giga_file)) + ".bin", std::ios_base::out | std::ios_base::trunc);
-                        of_match_link.close();
-                        of_match_link.open(utils::replace(match_link_file, "#", std::to_string(giga_file)) + ".bin", std::ios_base::app);
-                        of_match_link_it = std::ostream_iterator<std::string>(of_match_link, "\n");
-                    }
-
-                    std::copy(matches.begin(), matches.end(), of_match_link_it);
-                    matches.clear();
-                }
+                if (save_all_match && ((unsigned int)(matches.size()) % 100000 == 0))
+                    save(giga_file, match_link_file, of_match_link, matches, of_match_link_it);
             }
+
+            if ((unsigned int)(matches.size()) > 0)
+                save(giga_file, match_link_file, of_match_link, matches, of_match_link_it);
 
             of_match_link.close();
 

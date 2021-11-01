@@ -53,26 +53,30 @@ namespace utils
             b1.set(i, b2[i]);
     }
 
-    std::string bitstring_to_string(const std::string& data)
+    std::string bitstring_to_string(const std::string& bitstring)
     {
-        std::stringstream sstream(data);
-        std::string output;
-        while (sstream.good())
+        std::string ret = "";
+        for (unsigned int i = 0; i < bitstring.size(); i += COMPRESSION_OFFSET)
         {
-            std::bitset<8> bits;
-            sstream >> bits;
-            char c = char(bits.to_ulong());
-            output += c;
+            unsigned char ch = 0;
+            for (unsigned int c = 0; c < COMPRESSION_OFFSET; c++)
+            {
+                ch += (bitstring[i + c] - '0');
+                ch <<= 1;
+            }
+            ch >>= 1;
+            ret += (ch + 32);
         }
 
-        return output;
+        return ret;
     }
 
-    std::bitset<MAX_BITSET_MATCH_SIZE> string_to_bitset(std::string& string)
+    std::bitset<MAX_BITSET_MATCH_SIZE> string_to_bitset(const std::string& string)
     {
         std::bitset<MAX_BITSET_MATCH_SIZE> ret;
-        for (char& _char : string)
-            bitset_merge(ret, std::bitset<8>(_char));
+        for (unsigned int i = 0; i < string.size(); i++)
+            bitset_merge(ret, std::bitset<COMPRESSION_OFFSET>(string[i] - 32));
+
         return ret;
     }
 }

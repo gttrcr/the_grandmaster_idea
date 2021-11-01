@@ -9,10 +9,10 @@
 #include <regex>
 #include <bitset>
 
-#define THREADS 1
+#define THREADS 4
 #define BITSET_SIZE 14
-#define MAX_BITSET_MATCH_SIZE 5000
-//#define PERF 1 // PERFORMANCE (1)<-->SIZE (2)
+#define COMPRESSION_OFFSET 7
+#define MAX_BITSET_MATCH_SIZE 300 * BITSET_SIZE
 
 #include "utils.h"
 #include "position.h"
