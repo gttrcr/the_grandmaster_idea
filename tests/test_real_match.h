@@ -1,6 +1,6 @@
 #pragma once
 
-void test_3_real_match()
+void test_4_real_match(const std::string& input)
 {
     const std::string test_name = "test_real_match";
     std::cout << test_name << " start" << std::endl;
@@ -40,7 +40,6 @@ void test_3_real_match()
                         to >>= 1;
                         
                         t.move(position(from), position(to), false);
-                        t.draw();
                     }
                 }
             }

@@ -8,6 +8,7 @@
 #elif _WIN32
 #include<filesystem>
 #endif
+#include <random>
 
 namespace utils
 {
@@ -20,7 +21,11 @@ namespace utils
     std::string get_filename(const std::string& principal_name)
     {
         std::string timestamp = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
-        std::string rand = "0";
+        
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> rnd(0, 10000);
+        std::string rand = std::to_string(rnd(rng));
         return principal_name + "_" + timestamp + "_" + rand + FILE_EXT;
     }
 
