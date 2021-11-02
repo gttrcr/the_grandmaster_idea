@@ -43,3 +43,6 @@ Hence the information: white pawn A4->A5 and black knight G6->E5 is stored insid
 Several GB of data are available relating to simulations and tests carried out on millions of games
 * Duration: each row represents the number of moves per game (1 for white, 2 for black, 3 for white next move, 4 for black next move, ...). https://mega.nz/folder/Ofgy2DSY#QToVcF2i09a-s8eMzzkndA
 * History: history of all the moves for each game. https://mega.nz/folder/nfYVlKzR#rEgiPNBkVk5UxyZfWUkq0g
+
+### Call for results
+Anyone can contribute to the search for new games to always produce new results and deepen the search. Before proceeding to upload the files make sure that the -3 test is successfully passed so that no duplicate games are uploaded. If successful, you can make a pull request to main with the number of games calculated and the link from which I can download the .chess file (or files) to add to the archive.

@@ -9,7 +9,7 @@
 #include <regex>
 #include <bitset>
 
-#define DEFAULT_THREADS 4
+#define DEFAULT_THREADS 1
 #define BITSET_SIZE 14
 #define COMPRESSION_OFFSET 7
 #define MAX_BITSET_MATCH_SIZE 300 * BITSET_SIZE
@@ -72,4 +72,7 @@ int main(unsigned int argc, char* argv[])
         if (cmd == "-4")
             test_4_real_match("Q }0");
     }
+
+    getchar();
+    getchar();
 }

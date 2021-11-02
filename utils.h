@@ -21,7 +21,7 @@ namespace utils
     std::string get_filename(const std::string& principal_name)
     {
         std::string timestamp = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
-        
+
         std::random_device dev;
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> rnd(0, 10000);
@@ -90,5 +90,15 @@ namespace utils
             bitset_merge(ret, std::bitset<COMPRESSION_OFFSET>(string[i] - 32));
 
         return ret;
+    }
+
+    void prepare_string_view(const std::string& file, size_t& data_size, std::unique_ptr<char[]>& data)
+    {
+        std::fstream is(file, std::ios::in | std::ios::binary);
+        is.seekg(0, std::ios::end);
+        data_size = is.tellg();
+        is.seekg(0, std::ios::beg);
+        data = std::unique_ptr<char[]>(new char[data_size]);
+        is.read(data.get(), data_size);
     }
 }
