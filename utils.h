@@ -92,9 +92,9 @@ namespace utils
         return ret;
     }
 
-    void prepare_string_view(const std::string& file, size_t& data_size, std::unique_ptr<char[]>& data)
+    void prepare_string_view(const std::string& file, std::fstream& is, size_t& data_size, std::unique_ptr<char[]>& data)
     {
-        std::fstream is(file, std::ios::in | std::ios::binary);
+        is = std::fstream(file, std::ios::in | std::ios::binary);
         is.seekg(0, std::ios::end);
         data_size = is.tellg();
         is.seekg(0, std::ios::beg);
