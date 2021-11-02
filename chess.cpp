@@ -9,10 +9,14 @@
 #include <regex>
 #include <bitset>
 
-#define THREADS 4
+#define DEFAULT_THREADS 4
 #define BITSET_SIZE 14
 #define COMPRESSION_OFFSET 7
 #define MAX_BITSET_MATCH_SIZE 300 * BITSET_SIZE
+#define MAX_FILE_SIZE_BYTE 1000000000
+#define FILE_EXT ".chess"
+
+unsigned int global_threads = DEFAULT_THREADS;
 
 #include "utils.h"
 #include "position.h"
@@ -27,13 +31,8 @@ void show_help()
 
 }
 
-int main(int argc, char* argv[])
+int main(unsigned int argc, char* argv[])
 {
-    std::cout << "Threads " << THREADS << std::endl;
-    std::cout << "Bitset size " << BITSET_SIZE << std::endl;
-    std::cout << "Compression offset " << COMPRESSION_OFFSET << std::endl;
-    std::cout << "Max bitset match size " << MAX_BITSET_MATCH_SIZE << std::endl;
-
     if (argc == 1)
         show_help();
 
@@ -43,12 +42,12 @@ int main(int argc, char* argv[])
         std::string cmd = argv[i];
         //set the number of threads
         if (cmd == "-t")
-        {
-
-        }
+            global_threads = std::stoi(cmd);
         if (cmd == "-h")
             show_help();
     }
+
+    std::cout << "Threads " << global_threads << std::endl;
 
     //run tests
     for (unsigned int i = 1; i < argc; i++)

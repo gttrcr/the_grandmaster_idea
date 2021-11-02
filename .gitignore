@@ -12,3 +12,5 @@
 *.filters
 /match_duration_*
 *.dat
+*.chess
+*.lst

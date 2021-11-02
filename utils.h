@@ -17,6 +17,13 @@ namespace utils
         return s;
     }
 
+    std::string get_filename(const std::string& principal_name)
+    {
+        std::string timestamp = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+        std::string rand = "0";
+        return principal_name + "_" + timestamp + "_" + rand + FILE_EXT;
+    }
+
     std::vector<std::string> get_files(const std::string& record_dir_path, const std::regex regex = std::regex("."))
     {
         std::vector<std::string> files;

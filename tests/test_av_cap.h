@@ -2,12 +2,8 @@
 
 void test_1_av_cap(const unsigned int max_test)
 {
-    std::string test_name = "test_av_cap";
+    const std::string test_name = "test_av_cap";
     std::cout << test_name << " start, max_test " << max_test << std::endl;
-
-    std::ofstream outfile;
-    outfile.open(test_name + ".dat", std::ios_base::out | std::ios_base::trunc);
-    outfile.close();
 
     table t;
     std::vector<std::tuple<
@@ -79,11 +75,15 @@ void test_1_av_cap(const unsigned int max_test)
             str += tmp + "\n";
         }
 
-        if ((i % 10000) == 0)
+        if (i % 10000 == 0 || i == max_test)
         {
             std::cout << "         \r" << (double)i * 100.0 / (double)max_test << "%\r"
+#ifdef __linux__
                 << "\033[F" << std::endl;
-            outfile.open(test_name + ".dat", std::ios_base::app);
+#elif _WIN32
+                ;
+#endif
+            std::ofstream outfile(utils::get_filename(test_name), std::ios_base::app);
             outfile << str;
             outfile.close();
             str = "";

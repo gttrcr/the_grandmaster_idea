@@ -3,7 +3,7 @@
 class position
 {
 private:
-	char _col;
+	unsigned char _col;
 	unsigned int _row;
 
 public:
@@ -13,19 +13,19 @@ public:
 		_row = 1;
 	}
 
-	position(char from_char)
+	position(unsigned char from_char)
 	{
 		_col = from_char % 8 + 'a';
 		_row = (from_char / 8) + 1;
 	}
 
-	position(char col, unsigned int row)
+	position(unsigned char col, unsigned int row)
 	{
 		_col = col;
 		_row = row;
 	}
 
-	char get_col()
+	unsigned char get_col()
 	{
 		return _col;
 	}

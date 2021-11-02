@@ -18,15 +18,15 @@ Now, perhaps, the project will appear clearer: study the mathematics of a comple
 
 ## Source code
 The source code allows you to measure a lot of properties of chess games, in particular
-* number of moves per match
-* save every match (see match compression system)
-* number of pieces for each moment of the match
+* number of moves per game
+* save every game (see game compression system)
+* number of pieces for each moment of the game
 * number of pieces captured from each piece
 * average number of positions available for each piece
 * average number of pieces that can be captured for each piece
 
-### Match compression system
-When each match is saved, strings are stored on a file. At first it is saved the starting position of a piece (6 bits), the arrival position (6 bits) and any modification of the piece in the case of pawns reaching the other side of the chessboard (2 bits).
+### Game compression system
+When each game is saved, strings are stored on a file. At first it is saved the starting position of a piece (6 bits), the arrival position (6 bits) and any modification of the piece in the case of pawns reaching the other side of the chessboard (2 bits).
 Suppose following movements: a white pawn on A4 is put on A5 and then a black knight on G6 is put on E5. Starting from cell A1 (index 0), A4 has index 24, A5 has index 32, G6 has index 46 and E5 has index 36.
 ```
 movements    -> |white from|white to|white change|black from|black to|black change|
@@ -38,3 +38,8 @@ formatted binary value  -> |0110001|0000000|1011101|0010000|
 ascii string (value+32) -> |   Q   |[SPACE]|   }   |   0   |
 ```
 Hence the information: white pawn A4->A5 and black knight G6->E5 is stored inside the string 'Q }0'.
+
+## Results
+Several GB of data are available relating to simulations and tests carried out on millions of games
+* Duration: each row represents the number of moves per game (1 for white, 2 for black, 3 for white next move, 4 for black next move, ...). https://mega.nz/folder/Ofgy2DSY#QToVcF2i09a-s8eMzzkndA
+* History: history of all the moves for each game. https://mega.nz/folder/nfYVlKzR#rEgiPNBkVk5UxyZfWUkq0g
