@@ -31,7 +31,11 @@ void test_3_uniqueness()
                 for (size_t i = 0, start = 0; i < data_size; ++i)
                     if (data[i] == '\n')
                     {
+#ifdef __linux__
                         strings.emplace_back(data.get() + start, i - start);
+#elif _WIN32
+                        strings.emplace_back(data.get() + start, i - start - 1);
+#endif
                         start = i + 1;
                     }
                 in_file.close();
@@ -50,9 +54,12 @@ void test_3_uniqueness()
             }
         });
     std::for_each(files_th.begin(), files_th.end(), [](std::vector<std::string>& v) { v.clear(); });
+    std::cout << "\ttotal strings " << total_strings << std::endl << "\tduplicated strings " << duplicated_strings << std::endl;
     std::cout << "\tinside file itself end" << std::endl;
 
     //2. check duplicates between files
+    duplicated_strings = 0;
+    total_strings = 0;
     std::cout << "\tbetween files start" << std::endl;
     for (unsigned int i = 0; i < files.size(); i++)
     {
@@ -68,7 +75,11 @@ void test_3_uniqueness()
         for (size_t i = 0, start = 0; i < data_size; ++i)
             if (data[i] == '\n')
             {
+#ifdef __linux__
                 ref_strings.emplace_back(data.get() + start, i - start);
+#elif _WIN32
+                ref_strings.emplace_back(data.get() + start, i - start - 1);
+#endif
                 start = i + 1;
             }
         if_ref_file.close();
@@ -96,7 +107,11 @@ void test_3_uniqueness()
                     for (size_t i = 0, start = 0; i < data_size; ++i)
                         if (data[i] == '\n')
                         {
+#ifdef __linux__
                             strings.emplace_back(data.get() + start, i - start);
+#elif _WIN32
+                            strings.emplace_back(data.get() + start, i - start - 1);
+#endif
                             start = i + 1;
                         }
                     in_file.close();
@@ -110,13 +125,18 @@ void test_3_uniqueness()
                             { return sv_ref == sv; }),
                             strings.end()); });
                     duplicated_strings += (strings_size_before - strings.size());
+
+                    //remove the file and replace with unique strings values
+                    remove(item[v].c_str());
+                    std::ofstream out_file(item[v]);
+                    std::ostream_iterator<std::string_view> out_file_it(out_file, "\n");
+                    std::copy(strings.begin(), strings.end(), out_file_it);
+                    out_file.close();
                 }
             });
     }
+    std::cout << "\ttotal strings " << total_strings << std::endl << "\tduplicated strings " << duplicated_strings << std::endl;
     std::cout << "\tbetween files end" << std::endl;
-
-    std::cout << "total strings " << total_strings << std::endl
-        << "duplicated strings " << duplicated_strings << std::endl;
 
     std::cout << test_name << " end" << std::endl;
 }
