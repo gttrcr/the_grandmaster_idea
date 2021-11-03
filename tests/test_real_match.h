@@ -1,6 +1,6 @@
 #pragma once
 
-void test_4_real_match(const std::string& input)
+void test_4_real_match(const std::string &input)
 {
     const std::string test_name = "test_real_match";
     std::cout << test_name << " start" << std::endl;
@@ -13,7 +13,7 @@ void test_4_real_match(const std::string& input)
         std::execution::par_unseq,
         files_th.begin(),
         files_th.end(),
-        [](auto&& item)
+        [](auto &&item)
         {
             for (unsigned int i = 0; i < item.size(); i++)
             {
@@ -28,7 +28,7 @@ void test_4_real_match(const std::string& input)
                     {
                         //unsigned char from = bit_set[i + 5] + 2 * bit_set[i + 4] + 4 * bit_set[i + 3] + 8 * bit_set[i + 2] + 16 * bit_set[i + 1] + 32 * bit_set[i + 0];
                         //unsigned char to = bit_set[i + 11] + 2 * bit_set[i + 10] + 4 * bit_set[i + 9] + 8 * bit_set[i + 8] + 16 * bit_set[i + 7] + 32 * bit_set[i + 6];
-                        
+
                         unsigned char from = 0;
                         unsigned char to = 0;
                         for (unsigned int c = 0; c < COMPRESSION_OFFSET; c++)
@@ -38,7 +38,7 @@ void test_4_real_match(const std::string& input)
                         }
                         from >>= 1;
                         to >>= 1;
-                        
+
                         t.move(position(from), position(to), false);
                     }
                 }

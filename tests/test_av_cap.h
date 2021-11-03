@@ -12,13 +12,13 @@ void test_1_av_cap(const unsigned int max_test)
         unsigned int, //number of available positions
         unsigned int, //number of available captures
         std::tuple<
-        unsigned int, //number of pawn to capture
-        unsigned int, //number of rook to capture
-        unsigned int, //number of knight to capture
-        unsigned int, //number of bishop to capture
-        unsigned int, //number of king to capture
-        unsigned int  //number of queen to capture
-        >>>
+            unsigned int, //number of pawn to capture
+            unsigned int, //number of rook to capture
+            unsigned int, //number of knight to capture
+            unsigned int, //number of bishop to capture
+            unsigned int, //number of king to capture
+            unsigned int  //number of queen to capture
+            >>>
         average;
 
     average.push_back(std::make_tuple(piece(piece::value::pawn, piece::color::white), 0, 0, 0, std::tuple<unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int>()));
@@ -79,7 +79,7 @@ void test_1_av_cap(const unsigned int max_test)
         {
             std::cout << "         \r" << (double)i * 100.0 / (double)max_test << "%\r"
 #ifdef __linux__
-                << "\033[F" << std::endl;
+                      << "\033[F" << std::endl;
 #elif _WIN32
                 ;
 #endif

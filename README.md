@@ -17,6 +17,10 @@ It is very interesting to note that Hilbert's sixth problem, in a sense, aims at
 Now, perhaps, the project will appear clearer: study the mathematics of a complex system par excellence and try to apply to these results the concepts already widely used in mathematics such as the entropy of a function (also used in theoretical physics for black holes at the beginning of history) in search of a fundamental axiom from which to coherently build general relativity and quantum field theory.
 
 ## Source code
+To compile source code with g++
+```
+g++ -g chess.cpp -o chess -std=c++17 -ltbb -O3
+```
 The source code allows you to measure a lot of properties of chess games, in particular
 * number of moves per game
 * save every game (see game compression system)

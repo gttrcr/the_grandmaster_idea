@@ -1,8 +1,4 @@
-﻿################################################################################
-# Il file gitignore è stato creato automaticamente da Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs/the_grandmaster_idea/v16
+﻿/.vs/the_grandmaster_idea/v16
 /Debug
 /Release
 /the_grandmaster_idea.vcxproj
