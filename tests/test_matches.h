@@ -32,7 +32,7 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
         std::execution::par_unseq,
         th_work_distribution.begin(),
         th_work_distribution.end(),
-        [save_all_match, test_name](auto &&item)
+        [save_all_match, test_name](auto&& item)
         {
             unsigned int th_n = std::get<0>(item);
             unsigned int start = std::get<1>(item);
@@ -65,9 +65,9 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
                 if (th_n == 0 && (i % 1000 == 0))
                     std::cout << "         \r" << (double)i * 100.0 / (double)num_of_tests << "%\r"
 #ifdef __linux__
-                              << "\033[F" << std::endl;
+                    << "\033[F" << std::endl;
 #elif _WIN32
-                        ;
+                    ;
 #endif
 
                 if (save_all_match && ((unsigned int)(matches.size()) % 100000 == 0))

@@ -1,6 +1,6 @@
 #pragma once
 
-void test_4_real_match(const std::string &input)
+void test_4_real_match(const std::string& input)
 {
     const std::string test_name = "test_real_match";
     std::cout << test_name << " start" << std::endl;
@@ -13,7 +13,7 @@ void test_4_real_match(const std::string &input)
         std::execution::par_unseq,
         files_th.begin(),
         files_th.end(),
-        [](auto &&item)
+        [](auto&& item)
         {
             for (unsigned int i = 0; i < item.size(); i++)
             {

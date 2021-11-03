@@ -96,7 +96,7 @@ public:
         set('h', 8, piece::value::rook, piece::color::black);
     }
 
-    piece get(char x, unsigned int y, bool &is_out)
+    piece get(char x, unsigned int y, bool& is_out)
     {
         int x_int = x - 'a';
         int y_int = y - 1;
@@ -660,7 +660,7 @@ public:
 
             if (ok)
             {
-                std::bitset<BITSET_SIZE> bit_set{position(x_i, y_i).to_uchar()};
+                std::bitset<BITSET_SIZE> bit_set{ position(x_i, y_i).to_uchar() };
                 bit_set <<= 6;
                 bit_set |= position(x_f, y_f).to_uchar();
                 bit_set <<= 2;
@@ -763,7 +763,7 @@ public:
         return ret;
     }
 
-    static piece::color play(unsigned int &count, std::bitset<MAX_BITSET_MATCH_SIZE> &match)
+    static piece::color play(unsigned int& count, std::bitset<MAX_BITSET_MATCH_SIZE>& match)
     {
         table t;
         bool w_go_on = false;

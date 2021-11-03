@@ -37,7 +37,7 @@ void show_help()
     std::cout << "-t set the number of threads to use, default is " << DEFAULT_THREADS << std::endl;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     if (argc == 1)
         show_help();

@@ -18,7 +18,7 @@ void test_3_uniqueness()
         std::execution::par_unseq,
         files_th.begin(),
         files_th.end(),
-        [&duplicated_strings, &total_strings](auto &&item)
+        [&duplicated_strings, &total_strings](auto&& item)
         {
             for (unsigned int i = 0; i < item.size(); i++)
             {
@@ -49,7 +49,7 @@ void test_3_uniqueness()
                 out_file.close();
             }
         });
-    std::for_each(files_th.begin(), files_th.end(), [](std::vector<std::string> &v){ v.clear(); });
+    std::for_each(files_th.begin(), files_th.end(), [](std::vector<std::string>& v) { v.clear(); });
     std::cout << "\tinside file itself end" << std::endl;
 
     //2. check duplicates between files
@@ -74,7 +74,7 @@ void test_3_uniqueness()
         if_ref_file.close();
         //STOP - this cannot be inside a separate function
 
-        std::for_each(files_th.begin(), files_th.end(), [](std::vector<std::string> &v){ v.clear(); });
+        std::for_each(files_th.begin(), files_th.end(), [](std::vector<std::string>& v) { v.clear(); });
         for (unsigned int f = i + 1; f < files.size(); f++)
             files_th[f % global_threads].push_back(files[f]);
 
@@ -82,7 +82,7 @@ void test_3_uniqueness()
             std::execution::par_unseq,
             files_th.begin(),
             files_th.end(),
-            [&ref_strings, &duplicated_strings, &total_strings](auto &&item)
+            [&ref_strings, &duplicated_strings, &total_strings](auto&& item)
             {
                 for (unsigned int v = 0; v < item.size(); v++)
                 {
@@ -105,10 +105,10 @@ void test_3_uniqueness()
                     unsigned int strings_size_before = strings.size();
                     total_strings += strings_size_before;
                     //Compare ref_strings (from ref_file) with strings (from v-th file from item)
-                    std::for_each(ref_strings.begin(), ref_strings.end(), [&strings](const std::string_view &sv_ref)
-                                  { strings.erase(std::remove_if(strings.begin(), strings.end(), [&sv_ref](const std::string_view &sv)
-                                                                 { return sv_ref == sv; }),
-                                                  strings.end()); });
+                    std::for_each(ref_strings.begin(), ref_strings.end(), [&strings](const std::string_view& sv_ref)
+                        { strings.erase(std::remove_if(strings.begin(), strings.end(), [&sv_ref](const std::string_view& sv)
+                            { return sv_ref == sv; }),
+                            strings.end()); });
                     duplicated_strings += (strings_size_before - strings.size());
                 }
             });
@@ -116,7 +116,7 @@ void test_3_uniqueness()
     std::cout << "\tbetween files end" << std::endl;
 
     std::cout << "total strings " << total_strings << std::endl
-              << "duplicated strings " << duplicated_strings << std::endl;
+        << "duplicated strings " << duplicated_strings << std::endl;
 
     std::cout << test_name << " end" << std::endl;
 }

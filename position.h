@@ -41,7 +41,7 @@ public:
 	}
 };
 
-inline bool operator==(position &p1, position &p2)
+inline bool operator==(position& p1, position& p2)
 {
 	return p1.get_col() == p2.get_col() && p1.get_row() == p2.get_row();
 }
