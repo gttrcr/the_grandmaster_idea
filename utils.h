@@ -92,20 +92,29 @@ namespace utils
         return ret;
     }
 
-    void prepare_string_view(const std::string& file, std::fstream& is, size_t& data_size, std::unique_ptr<char[]>& data)
+    std::vector<std::string> exec(const char *command)
     {
-        is = std::fstream(file, std::ios::in | std::ios::binary);
-        is.seekg(0, std::ios::end);
-        data_size = is.tellg();
-        is.seekg(0, std::ios::beg);
-        data = std::unique_ptr<char[]>(new char[data_size]);
-        is.read(data.get(), data_size);
-    }
+        char tmpname[L_tmpnam];
+        std::tmpnam(tmpname);
+        std::string scommand = command;
+        std::string cmd = scommand + " >> " + tmpname;
+        std::system(cmd.c_str());
+        std::ifstream file(tmpname, std::ios::in | std::ios::binary);
+        std::string result;
+        if (file)
+        {
+            while (!file.eof())
+                result.push_back(file.get());
+            file.close();
+        }
+        remove(tmpname);
 
-    template <typename T>
-    void remove_duplicates(std::vector<T>& vec)
-    {
-        std::sort(vec.begin(), vec.end());
-        vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+        std::vector<std::string> ret;
+        std::istringstream iss(result);
+        std::string line;
+        while (std::getline(iss, line))
+            ret.push_back(line);
+
+        return ret;
     }
 }

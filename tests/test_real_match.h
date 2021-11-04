@@ -1,10 +1,10 @@
 #pragma once
 
-void test_4_real_match(const std::string& input)
+void test_4_real_match(const std::string &input)
 {
     const std::string test_name = "test_real_match";
     std::cout << test_name << " start" << std::endl;
-    std::vector<std::string> files = utils::get_files(".", std::regex("test_matches_[0-9]+_[0-9]+" + std::string(FILE_EXT)));
+    std::vector<std::string> files = utils::get_files(".", std::regex("^test_matches_[0-9]+_[0-9]+" + std::string(FILE_EXT) + "$"));
     std::vector<std::vector<std::string>> files_th(global_threads);
     for (unsigned int i = 0; i < files.size(); i++)
         files_th[i % global_threads].push_back(files[i]);
@@ -13,7 +13,7 @@ void test_4_real_match(const std::string& input)
         std::execution::par_unseq,
         files_th.begin(),
         files_th.end(),
-        [](auto&& item)
+        [](auto &&item)
         {
             for (unsigned int i = 0; i < item.size(); i++)
             {
@@ -40,6 +40,7 @@ void test_4_real_match(const std::string& input)
                         to >>= 1;
 
                         t.move(position(from), position(to), false);
+                        t.draw();
                     }
                 }
             }
