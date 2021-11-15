@@ -19,6 +19,7 @@ Now, perhaps, the project will appear clearer: study the mathematics of a comple
 ## Source code
 To compile source code with g++
 ```
+sudo apt install libtbb-dev
 g++ -g chess.cpp -o chess -std=c++17 -ltbb -O3
 ```
 The source code allows you to measure a lot of properties of chess games, in particular
