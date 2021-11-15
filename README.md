@@ -20,7 +20,8 @@ Now, perhaps, the project will appear clearer: study the mathematics of a comple
 To compile source code with g++
 ```
 sudo apt install libtbb-dev
-g++ -g chess.cpp -o chess -std=c++17 -ltbb -O3
+git submodule update --init --recursive
+g++ -g chess.cpp -o chess -std=c++17 -ltbb -O3 -pthread
 ```
 The source code allows you to measure a lot of properties of chess games, in particular
 * number of moves per game
@@ -29,6 +30,30 @@ The source code allows you to measure a lot of properties of chess games, in par
 * number of pieces captured from each piece
 * average number of positions available for each piece
 * average number of pieces that can be captured for each piece
+
+To use c++17 on raspberry
+```
+git clone https://bitbucket.org/sol_prog/raspberry-pi-gcc-binary.git
+cd raspberry-pi-gcc-binary/
+tar -xjvf gcc-10.1.0-armhf-raspbian.tar.bz2
+sudo mv gcc-10.1.0 /opt
+cd ..
+rm -rf raspberry-pi-gcc-binary/
+echo 'export PATH=/opt/gcc-10.1.0/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/opt/gcc-10.1.0/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+. ~/.bashrc
+sudo ln -s /usr/include/arm-linux-gnueabihf/sys /usr/include/sys
+sudo ln -s /usr/include/arm-linux-gnueabihf/bits /usr/include/bits
+sudo ln -s /usr/include/arm-linux-gnueabihf/gnu /usr/include/gnu
+sudo ln -s /usr/include/arm-linux-gnueabihf/asm /usr/include/asm
+sudo ln -s /usr/lib/arm-linux-gnueabihf/crti.o /usr/lib/crti.o
+sudo ln -s /usr/lib/arm-linux-gnueabihf/crt1.o /usr/lib/crt1.o
+sudo ln -s /usr/lib/arm-linux-gnueabihf/crtn.o /usr/lib/crtn.o
+```
+and then compile with 
+```
+g++-10.1 -g chess.cpp -o chess -std=c++17 -ltbb -O3 -pthread
+```
 
 ### Game compression system
 When each game is saved, strings are stored on a file. At first it is saved the starting position of a piece (6 bits), the arrival position (6 bits) and any modification of the piece in the case of pawns reaching the other side of the chessboard (2 bits).
