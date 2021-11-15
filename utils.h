@@ -3,39 +3,29 @@
 #include <iostream>
 #include <vector>
 #include <regex>
-#ifdef __linux__
 #include <dirent.h>
-#elif _WIN32
-#include <filesystem>
-#endif
-#include <random>
 
 namespace utils
 {
-    std::string replace(std::string s, const std::string to_replace, const std::string& replacement)
+    inline std::string replace(std::string s, const std::string to_replace, const std::string &replacement)
     {
         s.replace(s.find(to_replace), sizeof(to_replace) - 1, replacement);
         return s;
     }
 
-    std::string get_filename(const std::string& principal_name)
+    inline std::string get_filename(const std::string &principal_name)
     {
         std::string timestamp = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
-
-        std::random_device dev;
-        std::mt19937 rng(dev());
-        std::uniform_int_distribution<std::mt19937::result_type> rnd(0, 10000);
-        std::string rand = std::to_string(rnd(rng));
+        rnd rnd_file(0, 10000);
+        std::string rand = std::to_string(rnd_file.get());
         return principal_name + "_" + timestamp + "_" + rand + FILE_EXT;
     }
 
-    std::vector<std::string> get_files(const std::string& record_dir_path, const std::regex regex = std::regex("."))
+    inline std::vector<std::string> get_files(const std::string &record_dir_path, const std::regex regex = std::regex("."))
     {
         std::vector<std::string> files;
-#ifdef __linux__
-        struct dirent* entry;
-        DIR* dir = opendir(record_dir_path.c_str());
-
+        struct dirent *entry;
+        DIR *dir = opendir(record_dir_path.c_str());
         if (dir == NULL)
             return files;
         while ((entry = readdir(dir)) != NULL)
@@ -45,27 +35,19 @@ namespace utils
                 files.push_back(name);
         }
         closedir(dir);
-#elif _WIN32
-        for (const auto& entry : std::filesystem::directory_iterator(record_dir_path))
-        {
-            std::string name = entry.path().filename().string();
-            if (std::regex_match(name, regex))
-                files.push_back(name);
-        }
-#endif
 
         return files;
     }
 
     template <size_t N1, size_t N2>
-    void bitset_merge(std::bitset<N1>& b1, const std::bitset<N2>& b2)
+    inline void bitset_merge(std::bitset<N1> &b1, const std::bitset<N2> &b2)
     {
         b1 <<= b2.size();
         for (unsigned int i = 0; i < b2.size(); i++)
             b1.set(i, b2[i]);
     }
 
-    std::string bitstring_to_string(const std::string& bitstring)
+    inline std::string bitstring_to_string(const std::string &bitstring)
     {
         std::string ret = "";
         for (unsigned int i = 0; i < bitstring.size(); i += COMPRESSION_OFFSET)
@@ -83,7 +65,7 @@ namespace utils
         return ret;
     }
 
-    std::bitset<MAX_BITSET_MATCH_SIZE> string_to_bitset(const std::string& string)
+    inline std::bitset<MAX_BITSET_MATCH_SIZE> string_to_bitset(const std::string &string)
     {
         std::bitset<MAX_BITSET_MATCH_SIZE> ret;
         for (unsigned int i = 0; i < string.size(); i++)
@@ -92,7 +74,7 @@ namespace utils
         return ret;
     }
 
-    std::vector<std::string> exec(const char *command)
+    inline std::vector<std::string> exec(const char *command)
     {
         char tmpname[L_tmpnam];
         std::tmpnam(tmpname);
@@ -116,5 +98,32 @@ namespace utils
             ret.push_back(line);
 
         return ret;
+    }
+
+    inline void merge_files(const std::vector<std::string> &file_list, const std::string &output_file)
+    {
+        std::string cmd = "cat ";
+        for (unsigned int i = 0; i < file_list.size(); i++)
+            cmd += file_list[i] + " ";
+        cmd += "> " + output_file;
+        std::system(cmd.c_str());
+
+        //remove all files except for merged file
+        for (unsigned int i = 0; i < file_list.size(); i++)
+            remove(file_list[i].c_str());
+    }
+
+    inline void sort_unique_file(const std::string &file)
+    {
+        std::string sort = "sort -u " + file + " -o " + file;
+        std::system(sort.c_str());
+    }
+
+    inline bool is_number(const std::string &s)
+    {
+        std::string::const_iterator it = s.begin();
+        while (it != s.end() && std::isdigit(*it))
+            ++it;
+        return !s.empty() && it == s.end();
     }
 }

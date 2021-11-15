@@ -48,7 +48,7 @@ public:
     }
 };
 
-inline bool operator==(piece& p1, piece& p2)
+inline bool operator==(piece &p1, piece &p2)
 {
     return p1.get_color() == p2.get_color() && p1.get_value() == p2.get_value();
 }

@@ -64,11 +64,7 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
 
                 if (th_n == 0 && (i % 1000 == 0))
                     std::cout << "         \r" << (double)i * 100.0 / (double)num_of_tests << "%\r"
-#ifdef __linux__
                               << "\033[F" << std::endl;
-#elif _WIN32
-                        ;
-#endif
 
                 if (save_all_match && ((unsigned int)(matches.size()) % 100000 == 0))
                     save(test_name, of_match_link, matches, of_match_link_it);
@@ -87,13 +83,7 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
 
     //merge all test_matches_duration
     std::vector<std::string> files = utils::get_files(".", std::regex("^" + test_name + "_duration_[0-9]+_[0-9]+." + std::string(FILE_EXT) + "$"));
-    std::string cat = "cat ";
-    for (unsigned int i = 0; i < files.size(); i++)
-        cat += files[i] + " ";
-    cat += "> " + utils::get_filename(test_name + "_duration");
-    std::system(cat.c_str());
-    for (unsigned int i = 0; i < files.size(); i++)
-        remove(files[i].c_str());
+    utils::merge_files(files, utils::get_filename(test_name + "_duration"));
 
     std::cout << test_name << " end" << std::endl;
 }

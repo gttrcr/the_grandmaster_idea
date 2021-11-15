@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdarg>
-#include <random>
+//#include <random>
 #include <tuple>
 #include <bitset>
 
@@ -15,7 +15,7 @@ private:
     piece _t[8][8];
     inline static piece w_queen = piece(piece::value::queen, piece::color::white);
     inline static piece b_queen = piece(piece::value::queen, piece::color::black);
-    inline static std::random_device dev;
+    //inline static std::random_device dev;
 
     enum freedom
     {
@@ -96,7 +96,7 @@ public:
         set('h', 8, piece::value::rook, piece::color::black);
     }
 
-    piece get(char x, unsigned int y, bool& is_out)
+    piece get(char x, unsigned int y, bool &is_out)
     {
         int x_int = x - 'a';
         int y_int = y - 1;
@@ -660,7 +660,7 @@ public:
 
             if (ok)
             {
-                std::bitset<BITSET_SIZE> bit_set{ position(x_i, y_i).to_uchar() };
+                std::bitset<BITSET_SIZE> bit_set{position(x_i, y_i).to_uchar()};
                 bit_set <<= 6;
                 bit_set |= position(x_f, y_f).to_uchar();
                 bit_set <<= 2;
@@ -692,27 +692,35 @@ public:
             for (unsigned int y = 1; y < 9; y++)
                 set(x, y);
 
-        std::random_device dev;
-        std::mt19937 rng(dev());
-        std::uniform_int_distribution<std::mt19937::result_type> pos(0, 8); //from 0 to 8
-        std::uniform_int_distribution<std::mt19937::result_type> rkb(0, 2); // rook, knight, bishop from 0 to 2
-        std::uniform_int_distribution<std::mt19937::result_type> kq(0, 1);  //king, queen from 0 to 1
+        //std::random_device dev;
+        //std::mt19937 rng(dev());
+        rnd pos(0, 8);
+        rnd rkb(0, 2);
+        rnd kq(0, 1);
+        //std::uniform_int_distribution<std::mt19937::result_type> pos(0, 8); //from 0 to 8
+        //std::uniform_int_distribution<std::mt19937::result_type> rkb(0, 2); // rook, knight, bishop from 0 to 2
+        //std::uniform_int_distribution<std::mt19937::result_type> kq(0, 1);  //king, queen from 0 to 1
         if (how_many == 0)
         {
             for (unsigned int i = 0; i < 12; i++)
             {
                 unsigned int arg = 0;
                 if (i == 0 || i == 6)
-                    arg = pos(rng);
+                    //arg = pos(rng);
+                    arg = pos.get();
                 else if (i == 1 || i == 2 || i == 3 || i == 7 || i == 8 || i == 9)
-                    arg = rkb(rng);
+                    //arg = rkb(rng);
+                    arg = rkb.get();
                 else
-                    arg = kq(rng);
+                    //arg = kq(rng);
+                    arg = kq.get();
 
                 while (arg > 0)
                 {
-                    char x = pos(rng) + 'a';
-                    unsigned int y = pos(rng);
+                    //char x = pos(rng) + 'a';
+                    char x = pos.get() + 'a';
+                    //unsigned int y = pos(rng);
+                    unsigned int y = pos.get();
                     if (what_is(x, y) == freedom::available)
                     {
                         set(x, y, (piece::value)(i % 6 + 1), (piece::color)((i > 5) + 1));
@@ -730,8 +738,10 @@ public:
                 unsigned int arg = va_arg(args, unsigned int);
                 while (arg > 0)
                 {
-                    char x = pos(rng) + 'a';
-                    unsigned int y = pos(rng);
+                    //char x = pos(rng) + 'a';
+                    char x = pos.get() + 'a';
+                    //unsigned int y = pos(rng);
+                    unsigned int y = pos.get();
                     if (what_is(x, y) == freedom::available)
                     {
                         set(x, y, (piece::value)(i % 6 + 1), (piece::color)(i < 6 + 1));
@@ -763,12 +773,12 @@ public:
         return ret;
     }
 
-    static piece::color play(unsigned int& count, std::bitset<MAX_BITSET_MATCH_SIZE>& match)
+    static piece::color play(unsigned int &count, std::bitset<MAX_BITSET_MATCH_SIZE> &match)
     {
         table t;
         bool w_go_on = false;
         bool b_go_on = false;
-        std::mt19937 rng(dev());
+        //std::mt19937 rng(dev());
 
         while (true)
         {
@@ -778,25 +788,32 @@ public:
             std::vector<position> av_pos;
             std::vector<std::tuple<position, piece>> av_cap;
             std::vector<std::tuple<piece, position>> dist = t.pieces(piece::color::white);
+            rnd rnd_dist(0, (int)dist.size() - 1);
             do
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, (int)dist.size() - 1); //select a random element from dist
-                pp = dist[rnd_dist(rng)];
+                //std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, (int)dist.size() - 1); //select a random element from dist
+                //pp = dist[rnd_dist(rng)];
+                pp = dist[rnd_dist.get()];
                 av_pos = t.available_positions(std::get<1>(pp), TR_VALUE);
                 av_cap = t.available_captures(std::get<1>(pp));
             } while (av_pos.size() == 0 && av_cap.size() == 0);
 
-            std::uniform_int_distribution<std::mt19937::result_type> rnd_choice(0, 1); //select a random from pos and cap
-            unsigned int choice = rnd_choice(rng);
+            //std::uniform_int_distribution<std::mt19937::result_type> rnd_choice(0, 1); //select a random from pos and cap
+            rnd rnd_choice(0, 1);
+            //unsigned int choice = rnd_choice(rng);
+            unsigned int choice = rnd_choice.get();
             if ((choice == 0 && av_pos.size() != 0) || av_cap.size() == 0)
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, (int)av_pos.size() - 1); //select a random element from av_pos
-                utils::bitset_merge(match, t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]));
+                //std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, (int)av_pos.size() - 1); //select a random element from av_pos
+                rnd rnd_av_pos(0, (int)av_pos.size() - 1);
+                //utils::bitset_merge(match, t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]));
+                utils::bitset_merge(match, t.move(std::get<1>(pp), av_pos[rnd_av_pos.get()]));
             }
             else if ((choice == 1 && av_cap.size() != 0) || av_pos.size() == 0)
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, (int)av_cap.size() - 1); //select a random element from av_cap
-                utils::bitset_merge(match, t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)])));
+                //std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, (int)av_cap.size() - 1); //select a random element from av_cap
+                rnd rnd_av_cap(0, (int)av_cap.size() - 1);
+                utils::bitset_merge(match, t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap.get()])));
             }
 
             //check mate
@@ -819,24 +836,29 @@ public:
             count++;
             pp = std::make_tuple(piece(), position());
             dist = t.pieces(piece::color::black);
+            rnd rnd_dist2(0, (int)dist.size() - 1);
             do
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, (int)dist.size() - 1); //select a random element from dist
-                pp = dist[rnd_dist(rng)];
+                //std::uniform_int_distribution<std::mt19937::result_type> rnd_dist(0, (int)dist.size() - 1); //select a random element from dist
+                //pp = dist[rnd_dist(rng)];
+                pp = dist[rnd_dist2.get()];
                 av_pos = t.available_positions(std::get<1>(pp), TR_VALUE);
                 av_cap = t.available_captures(std::get<1>(pp));
             } while (av_pos.size() == 0 && av_cap.size() == 0);
 
-            choice = rnd_choice(rng);
+            //choice = rnd_choice(rng);
+            choice = rnd_choice.get();
             if ((choice == 0 && av_pos.size() != 0) || av_cap.size() == 0)
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, (int)av_pos.size() - 1); //select a random element from av_pos
-                utils::bitset_merge(match, t.move(std::get<1>(pp), av_pos[rnd_av_pos(rng)]));
+                //std::uniform_int_distribution<std::mt19937::result_type> rnd_av_pos(0, (int)av_pos.size() - 1); //select a random element from av_pos
+                rnd rnd_av_pos(0, (int)av_pos.size() - 1);
+                utils::bitset_merge(match, t.move(std::get<1>(pp), av_pos[rnd_av_pos.get()]));
             }
             else if ((choice == 1 && av_cap.size() != 0) || av_pos.size() == 0)
             {
-                std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, (int)av_cap.size() - 1); //select a random element from av_cap
-                utils::bitset_merge(match, t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap(rng)])));
+                //std::uniform_int_distribution<std::mt19937::result_type> rnd_av_cap(0, (int)av_cap.size() - 1); //select a random element from av_cap
+                rnd rnd_av_cap(0, (int)av_cap.size() - 1);
+                utils::bitset_merge(match, t.move(std::get<1>(pp), std::get<0>(av_cap[rnd_av_cap.get()])));
             }
 
             //check mate
