@@ -21,32 +21,22 @@ void test_3_uniqueness()
         else
             merge_file = files[0];
 
-        //sort merged file
+        //sort and process file
         unsigned int lines_number = std::stoi(utils::exec(std::string("wc -l " + merge_file + " | cut -d \" \" -f1").c_str())[0]);
+		std::string distinct_file = utils::get_filename("test_matches_distinct");
         std::cout << "\tsort start" << std::endl;
-        utils::sort_unique_file(merge_file);
-        std::cout << "\tsort end" << std::endl;
-        unsigned int unique_lines_number = std::stoi(utils::exec(std::string("wc -l " + merge_file + " | cut -d \" \" -f1").c_str())[0]);
+		utils::sort(merge_file);
+		std::cout << "\tsort end" << std::endl;
+		std::cout << "\tdistinct start" << std::endl;
+        utils::distinct(merge_file, distinct_file);
+		std::cout << "\tdistinct end" << std::endl;
+		std::cout << "\tdistinct once and count start" << std::endl;
+		unsigned int lines_exactly_once = utils::once_and_count(merge_file);
+        unsigned int distinct_file_lines_number = std::stoi(utils::exec(std::string("wc -l " + distinct_file + " | cut -d \" \" -f1").c_str())[0]);
+		std::cout << "\tdistinct once and count end" << std::endl;
 
-        //split merge_file, remove merge_file, rename new files
-        //std::ifstream if_merge_file(merge_file);
-        //if_merge_file.seekg(0, std::ios::end);
-        //unsigned int n_files = ((unsigned long int)(if_merge_file.tellg()) / MAX_FILE_SIZE_BYTE) + 1;
-        //if_merge_file.close();
-        //if (n_files > 1)
-        //{
-        //    std::cout << "\tsplit merge file start" << std::endl;
-        //    std::string split = "split -n " + std::to_string(n_files) + " " + merge_file + " " + merge_file;
-        //    std::system(split.c_str());
-        //    remove(merge_file.c_str());
-        //    files = utils::get_files(".", std::regex("^test_matches_[0-9]+_[0-9]+." + std::string(FILE_EXT) + "[a-z]+$"));
-        //    for (unsigned int i = 0; i < files.size(); i++)
-        //        std::system(std::string("mv " + files[i] + " " + utils::get_filename("test_matches")).c_str());
-        //}
-        //else
-        //    std::cout << "\tno need of split merge file" << std::endl;
-        
-        std::cout << unique_lines_number << " unique games on " << lines_number << " games (" << lines_number - unique_lines_number << " duplicated games)" << std::endl;
+        std::cout << "\t" << distinct_file_lines_number << " distinct games on " << lines_number << std::endl;
+		std::cout << "\t" << lines_exactly_once << " games appear exactly once on " << lines_number << std::endl;
     }
     else
         std::cout << "\tno files" << std::endl;

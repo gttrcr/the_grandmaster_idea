@@ -112,12 +112,27 @@ namespace utils
         for (unsigned int i = 0; i < file_list.size(); i++)
             remove(file_list[i].c_str());
     }
+	
+	inline void sort(const std::string& file)
+	{
+		std::string sort = "sort " + file + " -o " + file;
+		std::system(sort.c_str());
+	}
 
-    inline void sort_unique_file(const std::string &file)
+	//print duplicated and non duplicated lines only once
+    inline void distinct(const std::string &file, const std::string& new_file)
     {
-        std::string sort = "sort -u " + file + " -o " + file;
-        std::system(sort.c_str());
+        std::string distinct = "uniq " + file + " " + new_file;
+        std::system(distinct.c_str());
     }
+	
+	//print only non duplicated line
+	unsigned int once_and_count(const std::string& file)
+	{
+        std::string unique = "uniq -u " + file + " | wc -l";
+        std::vector<std::string> vec = exec(unique.c_str());
+		return std::stoi(vec[0]);
+	}
 
     inline bool is_number(const std::string &s)
     {

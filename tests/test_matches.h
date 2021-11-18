@@ -80,9 +80,13 @@ void test_2_matches(const unsigned int max_test, const bool save_all_match = fal
             std::copy(match_duration.begin(), match_duration.end(), of_match_duration_it);
             of_match_duration.close();
         });
-
-    //merge all test_matches_duration
-    std::vector<std::string> files = utils::get_files(".", std::regex("^" + test_name + "_duration_[0-9]+_[0-9]+." + std::string(FILE_EXT) + "$"));
+		
+	//merge all test_matches
+	std::vector<std::string> files = utils::get_files(".", std::regex("^" + test_name + "_[0-9]+_[0-9]+." + std::string(FILE_EXT) + "$"));
+    utils::merge_files(files, utils::get_filename(test_name));
+    
+	//merge all test_matches_duration
+    files = utils::get_files(".", std::regex("^" + test_name + "_duration_[0-9]+_[0-9]+." + std::string(FILE_EXT) + "$"));
     utils::merge_files(files, utils::get_filename(test_name + "_duration"));
 
     std::cout << test_name << " end" << std::endl;
