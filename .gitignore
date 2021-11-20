@@ -10,3 +10,6 @@
 *.dat
 *.chess
 *.lst
+breaks
+chess
+g++output.txt
