@@ -76,10 +76,7 @@ int main(int argc, char *argv[])
 		std::string cmd = it->first;
 		std::vector<std::string> args = it->second;
 		if (cmd == "-t" && args.size() == 1)
-		{
 			global_threads = std::stoi(args[0]);
-			std::cout << "done" << std::endl;
-		}
 		if (cmd == "-h" && args.size() == 0)
 			show_help();
 	}
@@ -125,20 +122,23 @@ int main(int argc, char *argv[])
 		if (cmd == "-5")
 		{
 			if (args.size() == 1 && args[0] == "default")
-				test_5_total_illegal_positions();
-			else if (args.size() == 12 && std::all_of(args.begin(), args.end(), [](std::string &s)
-													  { return utils::is_number(s); }))
-				test_5_total_illegal_positions(std::stoi(args[0]), std::stoi(args[1]), std::stoi(args[2]),
-											   std::stoi(args[3]), std::stoi(args[4]), std::stoi(args[5]),
-											   std::stoi(args[6]), std::stoi(args[7]), std::stoi(args[8]),
-											   std::stoi(args[9]), std::stoi(args[10]), std::stoi(args[11]));
-			else if (args.size() == 13 && std::all_of(args.begin(), args.end(), [](std::string &s)
-													  { return utils::is_number(s); }))
-				test_5_total_illegal_positions(std::stoi(args[0]), std::stoi(args[1]), std::stoi(args[2]),
-											   std::stoi(args[3]), std::stoi(args[4]), std::stoi(args[5]),
-											   std::stoi(args[6]), std::stoi(args[7]), std::stoi(args[8]),
-											   std::stoi(args[9]), std::stoi(args[10]), std::stoi(args[11]),
-											   std::stoi(args[12]));
+				test_5_total_illegal_positions_integral();
+			else if (args.size() == 14 && std::all_of(args.begin(), args.end(), [](std::string &s)
+													  { return utils::is_number(s); }) &&
+					 args[0] == "1")
+				test_5_total_illegal_positions(std::stoi(args[1]), std::stoi(args[2]), std::stoi(args[3]),
+											   std::stoi(args[4]), std::stoi(args[5]), std::stoi(args[6]),
+											   std::stoi(args[7]), std::stoi(args[8]), std::stoi(args[9]),
+											   std::stoi(args[10]), std::stoi(args[11]), std::stoi(args[12]),
+											   std::stoi(args[13]));
+			else if (args.size() == 14 && std::all_of(args.begin(), args.end(), [](std::string &s)
+													  { return utils::is_number(s); }) &&
+					 args[0] == "2")
+				test_5_total_illegal_positions_integral(std::stoi(args[1]), std::stoi(args[2]), std::stoi(args[3]),
+														std::stoi(args[4]), std::stoi(args[5]), std::stoi(args[6]),
+														std::stoi(args[7]), std::stoi(args[8]), std::stoi(args[9]),
+														std::stoi(args[10]), std::stoi(args[11]), std::stoi(args[12]),
+														std::stoi(args[13]));
 			else
 				std::cout << "-5 malformed command" << std::endl;
 		}
