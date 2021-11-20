@@ -2,7 +2,7 @@
 
 #include "../infint/InfInt.h"
 
-#define tuple_string_type std::tuple<unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int>
+using tuple_string_type = std::tuple<unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int>;
 
 InfInt fact(InfInt n)
 {
@@ -78,8 +78,11 @@ std::string to_string(tuple_string_type &t)
     return ret;
 }
 
-void test_5_total_illegal_positions(unsigned int n_pw = 8, unsigned int n_rw = 2, unsigned int n_nw = 2, unsigned int n_bw = 2, unsigned int n_kw = 1, unsigned int n_qw = 1,
-                                    unsigned int n_pb = 8, unsigned int n_rb = 2, unsigned int n_nb = 2, unsigned int n_bb = 2, unsigned int n_kb = 1, unsigned int n_qb = 1)
+void test_5_total_illegal_positions(unsigned int n_pw = 8, unsigned int n_rw = 2, unsigned int n_nw = 2,
+                                    unsigned int n_bw = 2, unsigned int n_kw = 1, unsigned int n_qw = 1,
+                                    unsigned int n_pb = 8, unsigned int n_rb = 2, unsigned int n_nb = 2,
+                                    unsigned int n_bb = 2, unsigned int n_kb = 1, unsigned int n_qb = 1,
+                                    unsigned int av_cells = 64)
 {
     const std::string test_name = "test_total_illegal_position";
     std::cout << test_name << " start" << std::endl;
@@ -140,7 +143,7 @@ void test_5_total_illegal_positions(unsigned int n_pw = 8, unsigned int n_rw = 2
     //sequence C
     std::vector<InfInt> C;
     for (unsigned int n = 0; n < B.size(); n++)
-        C.push_back((B[n] * fact(64)) / (fact(A[n]) * fact(64 - A[n])));
+        C.push_back((B[n] * fact(av_cells)) / (fact(A[n]) * fact(av_cells - A[n])));
 
     //sum over C
     InfInt N = 0;
@@ -172,7 +175,4 @@ void test_5_total_illegal_positions(unsigned int n_pw = 8, unsigned int n_rw = 2
     std::ofstream of_C(utils::get_filename(test_name + "_C"));
 
     std::cout << "N " << N << std::endl;
-    std::ofstream of_N(utils::get_filename(test_name + "_N"));
-    of_N << N << std::endl;
-    of_N.close();
 }

@@ -10,6 +10,7 @@
 #include <execution>
 #include <regex>
 #include <bitset>
+#include <map>
 
 #define BITSET_SIZE 14
 #define COMPRESSION_OFFSET 7
@@ -43,90 +44,103 @@ void show_help()
 	std::cout << "-t set the number of threads to use, default is " << global_threads << std::endl;
 }
 
+using cmd_map_type = std::map<std::string, std::vector<std::string>>;
+cmd_map_type produce_commands(int argc, char *argv[])
+{
+	cmd_map_type ret;
+	for (unsigned int i = 1; i < argc; i++)
+	{
+		std::string cmd = argv[i];
+		std::vector<std::string> list;
+		for (; i < argc; i++)
+			if (argv[i][0] != '-')
+				list.push_back(argv[i]);
+
+		ret[cmd] = list;
+	}
+
+	return ret;
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc == 1)
 		show_help();
 
+	//create a map of commands
+	cmd_map_type commands = produce_commands(argc, argv);
+
 	//set global execution variable
-	for (unsigned int i = 1; i < argc; i++)
+	for (cmd_map_type::iterator it = commands.begin(); it != commands.end(); ++it)
 	{
-		std::string cmd = argv[i];
-		if (cmd == "-t")
-			global_threads = std::stoi(argv[++i]);
-		if (cmd == "-h")
+		std::string cmd = it->first;
+		std::vector<std::string> args = it->second;
+		if (cmd == "-t" && args.size() == 1)
+		{
+			global_threads = std::stoi(args[0]);
+			std::cout << "done" << std::endl;
+		}
+		if (cmd == "-h" && args.size() == 0)
 			show_help();
 	}
 
-	//run tests
-	for (unsigned int i = 1; i < argc; i++)
+	//tests
+	for (cmd_map_type::iterator it = commands.begin(); it != commands.end(); ++it)
 	{
-		std::string cmd = argv[i];
+		std::string cmd = it->first;
+		std::vector<std::string> args = it->second;
+
 		if (cmd == "-1")
 		{
-			if (i + 1 < argc)
-			{
-				if (utils::is_number(argv[i + 1]))
-					test_1_av_cap(std::stoi(argv[i + 1]));
-				else
-					std::cout << "-1 malformed command" << std::endl;
-			}
+			if (args.size() == 1 && utils::is_number(args[0]))
+				test_1_av_cap(std::stoi(args[0]));
 			else
 				std::cout << "-1 malformed command" << std::endl;
 		}
+
 		if (cmd == "-2")
 		{
-			if (i + 1 < argc)
-			{
-				unsigned int max_test = std::stoi(argv[i + 1]);
-				bool save_all_match = true;
-				if (i + 1 < argc)
-				{
-					if (i + 2 < argc && utils::is_number(argv[i + 2]))
-						save_all_match = argv[i + 2] == "1";
-
-					test_2_matches(max_test, save_all_match);
-				}
-				else
-					std::cout << "-2 malformed command" << std::endl;
-			}
+			if (args.size() == 1 && utils::is_number(args[0]))
+				test_2_matches(std::stoi(args[0]), true);
 			else
 				std::cout << "-2 malformed command" << std::endl;
 		}
+
 		if (cmd == "-3")
-			test_3_uniqueness();
+		{
+			if (args.size() == 0)
+				test_3_uniqueness();
+			else
+				std::cout << "-3 malformed command" << std::endl;
+		}
+
 		if (cmd == "-4")
 		{
-			if (i + 1 < argc)
-				test_4_real_match(argv[i + 1]);
+			if (args.size() == 1)
+				test_4_real_match(args[0]);
 			else
 				std::cout << "-4 malformed command" << std::endl;
 		}
+
 		if (cmd == "-5")
 		{
-			std::vector<unsigned int> args;
-			while ((cmd = argv[i + 1])[0] != '-' && i < argc - 1)
-			{
-				if (cmd == "default")
-				{
-					test_5_total_illegal_positions();
-					break;
-				}
-				else
-				{
-					if (utils::is_number(cmd))
-						args.push_back(std::stoi(cmd));
-					if (args.size() == 12)
-					{
-						test_5_total_illegal_positions(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
-						break;
-					}
-				}
-			}
-
-			if (args.size() != 12 && args.size() != 0)
+			if (args.size() == 1 && args[0] == "default")
+				test_5_total_illegal_positions();
+			else if (args.size() == 12 && std::all_of(args.begin(), args.end(), [](std::string &s)
+													  { return utils::is_number(s); }))
+				test_5_total_illegal_positions(std::stoi(args[0]), std::stoi(args[1]), std::stoi(args[2]),
+											   std::stoi(args[3]), std::stoi(args[4]), std::stoi(args[5]),
+											   std::stoi(args[6]), std::stoi(args[7]), std::stoi(args[8]),
+											   std::stoi(args[9]), std::stoi(args[10]), std::stoi(args[11]));
+			else if (args.size() == 13 && std::all_of(args.begin(), args.end(), [](std::string &s)
+													  { return utils::is_number(s); }))
+				test_5_total_illegal_positions(std::stoi(args[0]), std::stoi(args[1]), std::stoi(args[2]),
+											   std::stoi(args[3]), std::stoi(args[4]), std::stoi(args[5]),
+											   std::stoi(args[6]), std::stoi(args[7]), std::stoi(args[8]),
+											   std::stoi(args[9]), std::stoi(args[10]), std::stoi(args[11]),
+											   std::stoi(args[12]));
+			else
 				std::cout << "-5 malformed command" << std::endl;
-			i--;
 		}
 	}
 }
