@@ -11,7 +11,9 @@
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-std=c++17",
                 "-ltbb",
-                "-g"
+                //"-g",
+                "-O3",
+                "-lncurses"
             ],
             "options": {
                 "cwd": "${fileDirname}"

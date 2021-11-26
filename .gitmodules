@@ -1,3 +1,6 @@
 [submodule "infint"]
 	path = infint
 	url = https://github.com/sercantutar/infint
+[submodule "Stockfish"]
+	path = Stockfish
+	url = https://github.com/official-stockfish/Stockfish

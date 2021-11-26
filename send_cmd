@@ -1,0 +1,6 @@
+#!/bin/bash
+(cat <<EOF
+position startpos move ##
+go movetime 3000
+EOF
+sleep 4) | ./Stockfish/src/stockfish | tail -n1 | cut -d' ' -f2

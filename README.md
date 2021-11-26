@@ -21,7 +21,7 @@ To compile source code with g++
 ```
 sudo apt install libtbb-dev
 git submodule update --init --recursive
-g++ -g chess.cpp -o chess -std=c++17 -ltbb -O3 -pthread
+g++ -g chess.cpp -o chess -std=c++17 -ltbb -O3 -pthread -lncurses
 ```
 The source code allows you to measure a lot of properties of chess games, in particular
 * number of moves per game

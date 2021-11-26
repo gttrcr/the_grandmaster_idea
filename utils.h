@@ -7,10 +7,16 @@
 
 namespace utils
 {
-    inline std::string replace(std::string s, const std::string to_replace, const std::string &replacement)
+    inline std::string replace(const std::string &in, const std::string &from, const std::string &to)
     {
-        s.replace(s.find(to_replace), sizeof(to_replace) - 1, replacement);
-        return s;
+        std::string str(in);
+        size_t start_pos = 0;
+        while ((start_pos = str.find(from, start_pos)) != std::string::npos)
+        {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length();
+        }
+        return str;
     }
 
     inline std::string get_filename(const std::string &principal_name)
@@ -112,27 +118,27 @@ namespace utils
         for (unsigned int i = 0; i < file_list.size(); i++)
             remove(file_list[i].c_str());
     }
-	
-	inline void sort(const std::string& file)
-	{
-		std::string sort = "sort " + file + " -o " + file;
-		std::system(sort.c_str());
-	}
 
-	//print duplicated and non duplicated lines only once
-    inline void distinct(const std::string &file, const std::string& new_file)
+    inline void sort(const std::string &file)
+    {
+        std::string sort = "sort " + file + " -o " + file;
+        std::system(sort.c_str());
+    }
+
+    //print duplicated and non duplicated lines only once
+    inline void distinct(const std::string &file, const std::string &new_file)
     {
         std::string distinct = "uniq " + file + " " + new_file;
         std::system(distinct.c_str());
     }
-	
-	//print only non duplicated line
-	unsigned int once_and_count(const std::string& file)
-	{
+
+    //print only non duplicated line
+    unsigned int once_and_count(const std::string &file)
+    {
         std::string unique = "uniq -u " + file + " | wc -l";
         std::vector<std::string> vec = exec(unique.c_str());
-		return std::stoi(vec[0]);
-	}
+        return std::stoi(vec[0]);
+    }
 
     inline bool is_number(const std::string &s)
     {
@@ -140,5 +146,17 @@ namespace utils
         while (it != s.end() && std::isdigit(*it))
             ++it;
         return !s.empty() && it == s.end();
+    }
+
+    namespace chess
+    {
+        inline std::string from_bitset_to_matches_string(const std::bitset<MAX_BITSET_MATCH_SIZE> &match, const unsigned int count)
+        {
+            std::string tmp = match.to_string();
+            unsigned int length = BITSET_SIZE * count;
+            tmp = tmp.substr(tmp.size() - length, length);
+            std::reverse(tmp.begin(), tmp.end());
+            return utils::bitstring_to_string(tmp);
+        }
     }
 }
