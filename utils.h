@@ -11,7 +11,7 @@
 
 namespace utils
 {
-    inline std::string replace(const std::string &in, const std::string &from, const std::string &to)
+    inline std::string replace(const std::string& in, const std::string& from, const std::string& to)
     {
         std::string str(in);
         size_t start_pos = 0;
@@ -23,7 +23,7 @@ namespace utils
         return str;
     }
 
-    inline std::string get_filename(const std::string &principal_name)
+    inline std::string get_filename(const std::string& principal_name)
     {
         std::string timestamp = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
         rnd rnd_file(0, 10000);
@@ -54,14 +54,14 @@ namespace utils
     }
 
     template <size_t N1, size_t N2>
-    inline void bitset_merge(std::bitset<N1> &b1, const std::bitset<N2> &b2)
+    inline void bitset_merge(std::bitset<N1>& b1, const std::bitset<N2>& b2)
     {
         b1 <<= b2.size();
         for (unsigned int i = 0; i < b2.size(); i++)
             b1.set(i, b2[i]);
     }
 
-    inline std::string bitstring_to_string(const std::string &bitstring)
+    inline std::string bitstring_to_string(const std::string& bitstring)
     {
         std::string ret = "";
         for (unsigned int i = 0; i < bitstring.size(); i += COMPRESSION_OFFSET)
@@ -79,7 +79,7 @@ namespace utils
         return ret;
     }
 
-    inline std::bitset<MAX_BITSET_MATCH_SIZE> string_to_bitset(const std::string &string)
+    inline std::bitset<MAX_BITSET_MATCH_SIZE> string_to_bitset(const std::string& string)
     {
         std::bitset<MAX_BITSET_MATCH_SIZE> ret;
         for (unsigned int i = 0; i < string.size(); i++)
@@ -88,7 +88,7 @@ namespace utils
         return ret;
     }
 
-    inline std::vector<std::string> exec(const char *command)
+    inline std::vector<std::string> exec(const char* command)
     {
         char tmpname[L_tmpnam];
         std::tmpnam(tmpname);
@@ -114,7 +114,7 @@ namespace utils
         return ret;
     }
 
-    inline void merge_files(const std::vector<std::string> &file_list, const std::string &output_file)
+    inline void merge_files(const std::vector<std::string>& file_list, const std::string& output_file)
     {
         std::string cmd = "cat ";
         for (unsigned int i = 0; i < file_list.size(); i++)
@@ -127,28 +127,28 @@ namespace utils
             remove(file_list[i].c_str());
     }
 
-    inline void sort(const std::string &file)
+    inline void sort(const std::string& file)
     {
         std::string sort = "sort " + file + " -o " + file;
         std::system(sort.c_str());
     }
 
     //print duplicated and non duplicated lines only once
-    inline void distinct(const std::string &file, const std::string &new_file)
+    inline void distinct(const std::string& file, const std::string& new_file)
     {
         std::string distinct = "uniq " + file + " " + new_file;
         std::system(distinct.c_str());
     }
 
     //print only non duplicated line
-    unsigned int once_and_count(const std::string &file)
+    unsigned int once_and_count(const std::string& file)
     {
         std::string unique = "uniq -u " + file + " | wc -l";
         std::vector<std::string> vec = exec(unique.c_str());
         return std::stoi(vec[0]);
     }
 
-    inline bool is_number(const std::string &s)
+    inline bool is_number(const std::string& s)
     {
         std::string::const_iterator it = s.begin();
         while (it != s.end() && std::isdigit(*it))
@@ -156,15 +156,12 @@ namespace utils
         return !s.empty() && it == s.end();
     }
 
-    namespace chess
+    inline std::string from_bitset_to_matches_string(const std::bitset<MAX_BITSET_MATCH_SIZE>& match, const unsigned int count)
     {
-        inline std::string from_bitset_to_matches_string(const std::bitset<MAX_BITSET_MATCH_SIZE> &match, const unsigned int count)
-        {
-            std::string tmp = match.to_string();
-            unsigned int length = BITSET_SIZE * count;
-            tmp = tmp.substr(tmp.size() - length, length);
-            std::reverse(tmp.begin(), tmp.end());
-            return utils::bitstring_to_string(tmp);
-        }
+        std::string tmp = match.to_string();
+        unsigned int length = BITSET_SIZE * count;
+        tmp = tmp.substr(tmp.size() - length, length);
+        std::reverse(tmp.begin(), tmp.end());
+        return utils::bitstring_to_string(tmp);
     }
 }

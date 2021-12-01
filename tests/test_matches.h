@@ -61,7 +61,7 @@ namespace test_2
                     //std::reverse(tmp.begin(), tmp.end());
                     //utils::chess::from_bitset_to_matches_string(match)
                     //matches.push_back(utils::bitstring_to_string(tmp));
-                    matches.push_back(utils::chess::from_bitset_to_matches_string(match, count));
+                    matches.push_back(utils::from_bitset_to_matches_string(match, count));
 
                     if (th_n == 0 && (i % 1000 == 0))
                         std::cout << "         \r" << (double)i * 100.0 / (double)num_of_tests << "%\r"

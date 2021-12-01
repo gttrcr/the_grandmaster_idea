@@ -25,6 +25,7 @@ unsigned int global_threads = std::thread::hardware_concurrency();
 #include "position.h"
 #include "piece.h"
 #include "table.h"
+#include "parser.h"
 #include "tests/test_av_cap.h"
 #include "tests/test_matches.h"
 #include "tests/test_uniqueness.h"
