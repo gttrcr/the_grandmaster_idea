@@ -164,7 +164,7 @@ namespace test_5
         for (unsigned int i = 0; i < input.size() - 1; i++)
             sum += std::stoi(input[i]);
 
-        return sum <= std::stoi(input[input.size() - 1]);
+        return sum <= (unsigned int)std::stoi(input[input.size() - 1]);
     }
 
     /*

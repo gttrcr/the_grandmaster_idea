@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef __linux__
 #include <ncurses.h>
 #include <signal.h>
 
@@ -241,6 +242,9 @@ namespace test_4
         endwin();
     }
 }
+#elif _WIN32
+//TODO
+#endif
 
 //std::vector<std::vector<std::string>> files_th(global_threads);
 //for (unsigned int i = 0; i < files.size(); i++)

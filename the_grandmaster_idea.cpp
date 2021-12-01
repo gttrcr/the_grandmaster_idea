@@ -48,11 +48,11 @@ using cmd_map_type = std::map<std::string, std::vector<std::string>>;
 cmd_map_type produce_commands(int argc, char *argv[])
 {
 	cmd_map_type ret;
-	for (unsigned int i = 1; i < argc; i++)
+	for (unsigned int i = 1; i < (unsigned int)argc; i++)
 	{
 		std::string cmd = argv[i];
 		std::vector<std::string> list;
-		for (; i < argc; i++)
+		for (; i < (unsigned int)argc; i++)
 			if (argv[i][0] != '-')
 				list.push_back(argv[i]);
 
@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
 
 		if (cmd == "-4")
 		{
+#ifdef __linux__
 			if (args.size() == 1 && utils::is_number(args[0]))
 			{
 				if (std::stoi(args[0]) == 1)
@@ -124,6 +125,9 @@ int main(int argc, char *argv[])
 			}
 			else
 				std::cout << cmd << " malformed command" << std::endl;
+#elif _WIN32
+			std::cout << cmd << " available only for linux" << std::endl;
+#endif
 		}
 
 		if (cmd == "-5")

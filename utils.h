@@ -3,7 +3,11 @@
 #include <iostream>
 #include <vector>
 #include <regex>
+#ifdef __linux__
 #include <dirent.h>
+#elif _WIN32
+//TODO
+#endif
 
 namespace utils
 {
@@ -27,11 +31,12 @@ namespace utils
         return principal_name + "_" + timestamp + "_" + rand + FILE_EXT;
     }
 
-    inline std::vector<std::string> get_files(const std::string &record_dir_path, const std::regex regex = std::regex("."))
+    inline std::vector<std::string> get_files(const std::string& record_dir_path, const std::regex regex = std::regex("."))
     {
         std::vector<std::string> files;
-        struct dirent *entry;
-        DIR *dir = opendir(record_dir_path.c_str());
+#ifdef __linux__
+        struct dirent* entry;
+        DIR* dir = opendir(record_dir_path.c_str());
         if (dir == NULL)
             return files;
         while ((entry = readdir(dir)) != NULL)
@@ -41,6 +46,9 @@ namespace utils
                 files.push_back(name);
         }
         closedir(dir);
+#elif _WIN32
+        //TODO
+#endif
 
         return files;
     }
