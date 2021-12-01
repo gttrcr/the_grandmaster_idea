@@ -21,7 +21,7 @@ To compile source code with g++
 ```
 sudo apt install libtbb-dev
 git submodule update --init --recursive
-g++ -g chess.cpp -o chess -std=c++17 -ltbb -O3 -pthread -lncurses
+g++ -g the_grandmaster_idea.cpp -o the_grandmaster_idea -std=c++17 -ltbb -O3 -pthread -lncurses
 ```
 The source code allows you to measure a lot of properties of chess games, in particular
 * number of moves per game
@@ -52,7 +52,7 @@ sudo ln -s /usr/lib/arm-linux-gnueabihf/crtn.o /usr/lib/crtn.o
 ```
 and then compile with 
 ```
-g++-10.1 -g chess.cpp -o chess -std=c++17 -ltbb -O3 -pthread
+g++-10.1 -g the_grandmaster_idea.cpp -o the_grandmaster_idea -std=c++17 -ltbb -O3 -pthread
 ```
 
 ### Game compression system
