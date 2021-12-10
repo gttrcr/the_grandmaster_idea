@@ -4,3 +4,6 @@
 [submodule "Stockfish"]
 	path = Stockfish
 	url = https://github.com/official-stockfish/Stockfish
+[submodule "functions_field/exprtk"]
+	path = functions_field/exprtk
+	url = https://github.com/ArashPartow/exprtk
