@@ -24,3 +24,4 @@ g++output.txt
 /functions_field/x64/Debug
 /functions_field/x64/Release
 *.bmp
+*.vcxproj
