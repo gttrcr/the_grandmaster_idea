@@ -73,6 +73,10 @@ namespace intarray2bmp
         {
             for (unsigned col = 0; col < columns; col++) // left-to-right
             {
+#ifdef GREY_SCALE
+                IntType t = intarray[row - 1][col];
+                f.put(static_cast<char>(t)).put(static_cast<char>(t)).put(static_cast<char>(t));
+#elif
                 unsigned char red, green, blue;
                 //
                 // This is how we convert an integer value to a color:
@@ -125,6 +129,7 @@ namespace intarray2bmp
 #undef c
 
                 f.put(static_cast<char>(blue)).put(static_cast<char>(green)).put(static_cast<char>(red));
+#endif
             }
 
             if (padding_size)

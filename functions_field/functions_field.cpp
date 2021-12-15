@@ -6,6 +6,7 @@
 #include <random>
 #include <execution>
 
+#define GREY_SCALE
 #include "intarray2bmp.h"
 
 #define PROTO_FUNC "A(sin(Bt+C)+1)"
@@ -32,13 +33,16 @@ void init_expr(unsigned int x_max, unsigned int y_max)
     std::random_device os_seed;
     const double seed = os_seed();
     std::mt19937 generator(seed);
-    
+
     std::uniform_real_distribution<double> a(A_MIN, A_MAX);
     std::uniform_real_distribution<double> b(B_MIN, B_MAX);
     std::uniform_real_distribution<double> c(C_MIN, C_MAX);
     //std::normal_distribution<double> a(A_MAX, 10);
     //std::normal_distribution<double> b(50, 1);
     //std::normal_distribution<double> c(50, 1);
+
+    std::normal_distribution<double> x_gen(x_max / 2, 2);
+    std::normal_distribution<double> y_gen(y_max / 2, 2);
 
     x_vector.clear();
     expr = new std::string *[x_max];
@@ -48,9 +52,12 @@ void init_expr(unsigned int x_max, unsigned int y_max)
         expr[x] = new std::string[y_max];
         frame[x] = new unsigned int[y_max];
         x_vector.push_back(x);
-        for (unsigned int y = 0; y < y_max; y++)
-            expr[x][y] = replace(replace(replace(PROTO_FUNC, "A", std::to_string(a(generator))), "B", std::to_string(b(generator))), "C", std::to_string(c(generator)));
+        //for (unsigned int y = 0; y < y_max; y++)
+        //    expr[x][y] = replace(replace(replace(PROTO_FUNC, "A", std::to_string(a(generator))), "B", std::to_string(b(generator))), "C", std::to_string(c(generator)));
     }
+
+    for (unsigned int i = 0; i < 200; i++)
+        expr[(int)x_gen(generator)][(int)y_gen(generator)] = replace(replace(replace(PROTO_FUNC, "A", std::to_string(a(generator))), "B", std::to_string(b(generator))), "C", std::to_string(c(generator)));
 }
 
 unsigned char result(unsigned int x, unsigned int y, double t)
