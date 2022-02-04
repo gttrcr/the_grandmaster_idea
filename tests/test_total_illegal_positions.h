@@ -106,10 +106,10 @@ namespace test_5
     }
 
     void test_5_total_illegal_positions_integral(unsigned int n_pw = 8, unsigned int n_rw = 2, unsigned int n_nw = 2,
-                                                 unsigned int n_bw = 2, unsigned int n_kw = 1, unsigned int n_qw = 1,
-                                                 unsigned int n_pb = 8, unsigned int n_rb = 2, unsigned int n_nb = 2,
-                                                 unsigned int n_bb = 2, unsigned int n_kb = 1, unsigned int n_qb = 1,
-                                                 unsigned int av_cells = 64)
+        unsigned int n_bw = 2, unsigned int n_kw = 1, unsigned int n_qw = 1,
+        unsigned int n_pb = 8, unsigned int n_rb = 2, unsigned int n_nb = 2,
+        unsigned int n_bb = 2, unsigned int n_kb = 1, unsigned int n_qb = 1,
+        unsigned int av_cells = 64)
     {
         const std::string test_name = "test_total_illegal_position_integral";
         std::cout << test_name << " start" << std::endl;
@@ -140,7 +140,18 @@ namespace test_5
         std::iota(qb.begin(), qb.end(), 0);
 
         InfInt N = 0;
-        unsigned int pws = pw.size(), rws = rw.size(), nws = nw.size(), bws = bw.size(), kws = kw.size(), qws = qw.size(), pbs = pb.size(), rbs = rb.size(), nbs = nb.size(), bbs = bb.size(), kbs = kb.size(), qbs = qb.size();
+        unsigned int pws = (unsigned int)pw.size();
+        unsigned int rws = (unsigned int)rw.size();
+        unsigned int nws = (unsigned int)nw.size();
+        unsigned int bws = (unsigned int)bw.size();
+        unsigned int kws = (unsigned int)kw.size();
+        unsigned int qws = (unsigned int)qw.size();
+        unsigned int pbs = (unsigned int)pb.size();
+        unsigned int rbs = (unsigned int)rb.size();
+        unsigned int nbs = (unsigned int)nb.size();
+        unsigned int bbs = (unsigned int)bb.size();
+        unsigned int kbs = (unsigned int)kb.size();
+        unsigned int qbs = (unsigned int)qb.size();
         for (unsigned int i_pw = 0; i_pw < pws; i_pw++)
             for (unsigned int i_rw = 0; i_rw < rws; i_rw++)
                 for (unsigned int i_nw = 0; i_nw < nws; i_nw++)
