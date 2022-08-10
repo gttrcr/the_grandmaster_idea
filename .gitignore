@@ -26,3 +26,4 @@ g++output.txt
 *.bmp
 *.vcxproj
 Stockfish
+*.exe
