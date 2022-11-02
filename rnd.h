@@ -18,9 +18,14 @@ public:
         _max = max;
     }
 
+    static unsigned int get(unsigned int min, unsigned int max)
+    {
+        std::uniform_int_distribution<int> uid(min, max);
+        return uid(_rng);
+    }
+
     unsigned int get()
     {
-        std::uniform_int_distribution<int> uid(_min, _max);
-        return uid(_rng);
+        return get(_min, _max);
     }
 };

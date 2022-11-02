@@ -70,8 +70,12 @@ int main(int argc, char *argv[])
 {
 	chessboard ch;
 	ch.setup();
-	ch.show();
-	ch.move();
+	unsigned int i = 0;
+	while (true)
+	{
+		ch.show();
+		ch.move();
+	}
 
 	/*
 		if (argc == 1)
