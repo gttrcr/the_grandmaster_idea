@@ -57,7 +57,7 @@ public:
     }
 
     // set a TBoard piece on the n-board by coordinates
-    void set(const std::initializer_list<unsigned int> coords, const TBoard &p)
+    void set(const std::initializer_list<unsigned int> &coords, const TBoard &p)
     {
         unsigned int pos;
         if (_check(coords, pos))
@@ -67,7 +67,7 @@ public:
     }
 
     // get a TBoard piece on the n-board by coordinates
-    TBoard *get(const std::initializer_list<unsigned int> coords)
+    TBoard *get(const std::initializer_list<unsigned int> &coords)
     {
         unsigned int pos;
         if (_check(coords, pos))

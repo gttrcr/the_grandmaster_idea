@@ -124,7 +124,7 @@ public:
     std::initializer_list<unsigned int> to;
     bool capture;
 
-    _movement(const std::initializer_list<unsigned int> _from, const std::initializer_list<unsigned int> _to, bool _capture)
+    _movement(const std::initializer_list<unsigned int> &_from, const std::initializer_list<unsigned int> &_to, bool _capture)
     {
         from = _from;
         to = _to;
