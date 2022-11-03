@@ -1,5 +1,10 @@
 #pragma once
 
+#include <bitset>
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include "board.h"
 #include "../rnd.h"
 
@@ -102,41 +107,153 @@ public:
     }
 };
 
-class chessboardhistory
-{
-private:
-    std::vector<unsigned int> _history;
-
-public:
-    chessboardhistory()
-    {
-    }
-
-    void add()
-    {
-    }
-};
-
 struct _movement
 {
 public:
-    std::initializer_list<unsigned int> from;
-    std::initializer_list<unsigned int> to;
-    bool capture;
+    std::vector<unsigned int> from;
+    std::vector<unsigned int> to;
 
-    _movement(const std::initializer_list<unsigned int> &_from, const std::initializer_list<unsigned int> &_to, bool _capture)
+    _movement(const std::vector<unsigned int> &_from, const std::vector<unsigned int> &_to)
     {
         from = _from;
         to = _to;
-        capture = _capture;
+    }
+};
+
+#define MAX_BITSET 10000
+
+class chessboardhistory
+{
+private:
+    unsigned int _size = 0;
+    std::bitset<MAX_BITSET> _history;
+    std::vector<std::string> _plays;
+
+public:
+    void start_play()
+    {
+        _size = 0;
+        _history.reset();
+    }
+
+    void add(const _movement &mov)
+    {
+        for (unsigned int i = 0; i < mov.from.size(); i++)
+        {
+            _size += 3;
+            _history <<= 3;
+            _history |= std::bitset<MAX_BITSET>(mov.from[i]);
+        }
+
+        for (unsigned int i = 0; i < mov.to.size(); i++)
+        {
+            _size += 3;
+            _history <<= 3;
+            _history |= std::bitset<MAX_BITSET>(mov.to[i]);
+        }
+    }
+
+    std::string to_string()
+    {
+        std::string str = "";
+        std::bitset<6> single_char;
+        for (unsigned int h = 0; h < _size; h += single_char.size())
+        {
+            for (unsigned int i = 0; i < single_char.size(); i++)
+            {
+                if ((int)_size - 1 - (int)h - (int)i < 0)
+                    single_char.set(single_char.size() - 1 - i, false);
+                else
+                    single_char.set(single_char.size() - 1 - i, _history[_size - 1 - h - i]);
+            }
+
+            str += (unsigned char)(32 + single_char.to_ullong());
+        }
+
+        return str;
+    }
+
+    void end_play()
+    {
+        _plays.push_back(to_string());
+        _history.reset();
+    }
+
+    void save(const std::string &file_name)
+    {
+        std::ofstream output;
+        output.open(file_name, std::ios_base::out | std::ios_base::binary);
+        if (output.is_open())
+        {
+            for (unsigned int i = 0; i < _plays.size(); i++)
+                output << _plays[i] << std::endl;
+            output.close();
+        }
+    }
+
+    static std::vector<_movement> from_history(const std::string &str_hist)
+    {
+        // the structure is 00xxxyyy|00xxxyyy|00xxxyyy|00xxxyyy
+        std::vector<_movement> movs;
+        for (unsigned int i = 0; i < str_hist.size(); i += 4)
+        {
+            std::bitset<32> move((unsigned char)str_hist[i]);
+            move <<= 8;
+            move |= std::bitset<32>((unsigned char)str_hist[i + 1]);
+            move <<= 8;
+            move |= std::bitset<32>((unsigned char)str_hist[i + 2]);
+            move <<= 8;
+            move |= std::bitset<32>((unsigned char)str_hist[i + 3]);
+
+            std::cout << move.to_string() << std::endl;
+
+            std::vector<unsigned int> white_from;
+            white_from.push_back(move[27] + move[28] * 2 + move[29] * 4); // x
+            white_from.push_back(move[24] + move[25] * 2 + move[26] * 4); // y
+            std::vector<unsigned int> white_to;
+            white_to.push_back(move[19] + move[20] * 2 + move[21] * 4); // x
+            white_to.push_back(move[16] + move[17] * 2 + move[18] * 4); // y
+            if (white_from[0] == 0 && white_from[1] == 0 && white_to[0] == 0 && white_to[1] == 0)
+                break;
+            else
+                movs.push_back(_movement(white_from, white_to));
+
+            std::vector<unsigned int> black_from;
+            black_from.push_back(move[11] + move[12] * 2 + move[13] * 4); // x
+            black_from.push_back(move[8] + move[9] * 2 + move[10] * 4);   // y
+            std::vector<unsigned int> black_to;
+            black_to.push_back(move[3] + move[4] * 2 + move[5] * 4); // x
+            black_to.push_back(move[0] + move[1] * 2 + move[2] * 4); // y
+
+            if (black_from[0] == 0 && black_from[1] == 0 && black_to[0] == 0 && black_to[1] == 0)
+                break;
+            else
+                movs.push_back(_movement(black_from, black_to));
+        }
+
+        return movs;
+    }
+
+    static std::vector<std::vector<_movement>> from_file(const std::string &file_name)
+    {
+        std::vector<std::vector<_movement>> movs;
+        std::ifstream input(file_name);
+        for (std::string line; getline(input, line);)
+            if (line.size() > 0)
+                movs.push_back(from_history(line));
+        input.close();
+
+        return movs;
     }
 };
 
 class chessboard : public virtual board<chesspiece>
 {
 private:
-    // provides the list of positions where pieces can go
-    void _available_positions(unsigned int x, unsigned int y, std::vector<_movement> &positions)
+    chessboardhistory _history;
+
+    // provides the list of positions of a single piece by coordinate
+    void _piece_available_positions(unsigned int x, unsigned int y, std::vector<_movement> &positions)
     {
         chesspiece *target = get({x, y});
         switch (target->get_value())
@@ -145,12 +262,12 @@ private:
         {
             chesspiece *p;
             int dir = 2 * (get({x, y})->get_color() == chesspiece::color::white) - 1; // 1 for white, -1 for black
-            if (get({x, y + dir})->is_empty())
-                positions.push_back(_movement({x, y}, {x, y + dir}, false)); // if the cell is empty, can move but nothing to capture
+            if ((p = get({x, y + dir})) != nullptr && p->is_empty())
+                positions.push_back(_movement({x, y}, {x, y + dir})); // if the cell is empty, can move but nothing to capture
             if ((p = get({x - 1, y + dir})) != nullptr && !p->is_empty() && target->get_color() != p->get_color())
-                positions.push_back(_movement({x, y}, {x - 1, y + dir}, true)); // if the cell is not empty, can move and capture
+                positions.push_back(_movement({x, y}, {x - 1, y + dir})); // if the cell is not empty, can move and capture
             if ((p = get({x + 1, y + dir})) != nullptr && !p->is_empty() && target->get_color() != p->get_color())
-                positions.push_back(_movement({x, y}, {x + 1, y + dir}, true)); // if the cell is not empty, can move and capture
+                positions.push_back(_movement({x, y}, {x + 1, y + dir})); // if the cell is not empty, can move and capture
             break;
         }
         case chesspiece::value::rook:
@@ -176,6 +293,47 @@ private:
         default:
             break;
         }
+    }
+
+    // provides the list of positions of pieces by color
+    std::vector<_movement> _available_positions(const chesspiece::color &color)
+    {
+        std::vector<_movement> positions;
+        chesspiece *p;
+        for (unsigned int x = 0; x < *get_board_sizes(); x++)
+            for (unsigned int y = 0; y < *(get_board_sizes() + 1); y++)
+                if ((p = get({x, y})) != nullptr && p->get_color() == color)
+                    _piece_available_positions(x, y, positions);
+
+        return positions;
+    }
+
+    // execute a single move (white or black)
+    void _single_move(const chesspiece::color &color)
+    {
+        std::vector<_movement> positions = _available_positions(color);
+        if (positions.size() > 0)
+        {
+            _movement t = positions.at(rnd::get(0, positions.size() - 1));
+            set(t.to, *get(t.from));
+            set(t.from, chesspiece());
+            _history.add(t);
+        }
+    }
+
+    // get the winner's color
+    bool _get_winner(chesspiece::color &color)
+    {
+        std::vector<_movement> positions = _available_positions(chesspiece::color::white);
+        std::vector<_movement> black_positions = _available_positions(chesspiece::color::black);
+        positions.insert(positions.end(), black_positions.begin(), black_positions.end());
+        if (positions.size() == 0)
+        {
+            color = chesspiece::color::empty_color;
+            return true;
+        }
+
+        return false;
     }
 
 public:
@@ -233,27 +391,47 @@ public:
 
     void show()
     {
-        std::cout << "START" << std::endl;
+        std::cout << "---- START -----" << std::endl;
         for (unsigned int x = 0; x < *(get_board_sizes() + 1); x++)
         {
             for (unsigned int y = 0; y < *get_board_sizes(); y++)
                 std::cout << get({y, *(get_board_sizes() + 1) - x - 1})->to_string() << " ";
             std::cout << std::endl;
         }
-        std::cout << "STOP" << std::endl;
+        std::cout << "---- STOP ----" << std::endl;
     }
 
-    void move()
+    void game_turn()
     {
-        std::vector<_movement> positions;
-        chesspiece *p;
-        for (unsigned int x = 0; x < *get_board_sizes(); x++)
-            for (unsigned int y = 0; y < *(get_board_sizes() + 1); y++)
-                if ((p = get({x, y})) != nullptr && p->get_color() == chesspiece::color::white)
-                    _available_positions(x, y, positions);
+        _single_move(chesspiece::color::white);
+        _single_move(chesspiece::color::black);
+    }
 
-        _movement t = positions[rnd::get(0, positions.size() - 1)];
-        set(t.to, *get(t.to));
-        set(t.from, chesspiece());
+    void play()
+    {
+        _history.start_play();
+        chesspiece::color winner;
+        do
+        {
+            _single_move(chesspiece::color::white);
+            if (!_get_winner(winner))
+                _single_move(chesspiece::color::black);
+        } while (!_get_winner(winner));
+        _history.end_play();
+    }
+
+    void play(std::vector<_movement> &movs)
+    {
+        for (unsigned int i = 0; i < movs.size(); i++)
+        {
+            _movement t = movs[i];
+            set(t.to, *get(t.from));
+            set(t.from, chesspiece());
+        }
+    }
+
+    void save(const std::string &file_name)
+    {
+        _history.save(file_name);
     }
 };

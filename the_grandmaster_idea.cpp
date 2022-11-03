@@ -1,24 +1,24 @@
-#define _CRT_SECURE_NO_WARNINGS
+//#define _CRT_SECURE_NO_WARNINGS
+//
+//#include <thread>
+//#include <string>
+//#include <chrono>
+//#include <fstream>
+//#include <iterator>
+//#include <sstream>
+//#include <string>
+//#include <execution>
+//#include <regex>
+//#include <bitset>
+//#include <map>
 
-#include <thread>
-#include <string>
-#include <chrono>
-#include <fstream>
-#include <iterator>
-#include <sstream>
-#include <string>
-#include <execution>
-#include <regex>
-#include <bitset>
-#include <map>
-
-#define BITSET_SIZE 14
-#define COMPRESSION_OFFSET 7
-#define MAX_BITSET_MATCH_SIZE 300 * BITSET_SIZE
-#define MAX_FILE_SIZE_BYTE 1000000000
-#define FILE_EXT ".chess"
-
-unsigned int global_threads = std::thread::hardware_concurrency();
+//#define BITSET_SIZE 14
+//#define COMPRESSION_OFFSET 7
+//#define MAX_BITSET_MATCH_SIZE 300 * BITSET_SIZE
+//#define MAX_FILE_SIZE_BYTE 1000000000
+//#define FILE_EXT ".chess"
+//
+// unsigned int global_threads = std::thread::hardware_concurrency();
 
 //#include "rnd.h"
 //#include "utils.h"
@@ -33,6 +33,7 @@ unsigned int global_threads = std::thread::hardware_concurrency();
 
 #include "boards/chessboard.h"
 
+/*
 void show_help()
 {
 	std::cout << "example" << std::endl
@@ -65,17 +66,25 @@ cmd_map_type produce_commands(int argc, char *argv[])
 
 	return ret;
 }
+*/
 
 int main(int argc, char *argv[])
 {
 	chessboard ch;
-	ch.setup();
-	unsigned int i = 0;
-	while (true)
+	for (unsigned int i = 0; i < 100000; i++)
 	{
-		ch.show();
-		ch.move();
+		ch.setup();
+		ch.play();
+		// ch.show();
 	}
+	ch.save("output.tgi");
+
+	//// get movements
+	// std::vector<std::vector<_movement>> movs = chessboardhistory::from_file("output.tgi");
+	// ch.setup();
+	// ch.show();
+	// ch.play(movs[0]);
+	// ch.show();
 
 	/*
 		if (argc == 1)

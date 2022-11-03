@@ -1,7 +1,9 @@
 #pragma once
 
+#include <vector>
 #include <iostream>
 #include <exception>
+#include <algorithm>
 
 // TBoard is the type of elements on the board
 template <class TBoard>
@@ -12,7 +14,7 @@ private:
     unsigned int _d;      // dimension of the board (1 for line, 2 for square, 3 for cube, ...)
     TBoard *_board;
 
-    bool _check(const std::initializer_list<unsigned int> &coords, unsigned int &pos)
+    bool _check(const std::vector<unsigned int> &coords, unsigned int &pos)
     {
         bool ok = true;
         if (coords.size() != _d)
@@ -57,7 +59,7 @@ public:
     }
 
     // set a TBoard piece on the n-board by coordinates
-    void set(const std::initializer_list<unsigned int> &coords, const TBoard &p)
+    void set(const std::vector<unsigned int> &coords, const TBoard &p)
     {
         unsigned int pos;
         if (_check(coords, pos))
@@ -67,7 +69,7 @@ public:
     }
 
     // get a TBoard piece on the n-board by coordinates
-    TBoard *get(const std::initializer_list<unsigned int> &coords)
+    TBoard *get(const std::vector<unsigned int> &coords)
     {
         unsigned int pos;
         if (_check(coords, pos))
@@ -87,9 +89,15 @@ public:
         throw std::logic_error("show not implemented");
     }
 
-    // execute a move on the board
-    void move()
+    // execute a complete game_turn on the board
+    void game_turn()
     {
-        throw std::logic_error("mode not implemented");
+        throw std::logic_error("game_turn not implemented");
+    }
+
+    // execute a full game
+    void play()
+    {
+        throw std::logic_error("play not implemented");
     }
 };
