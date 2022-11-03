@@ -309,30 +309,17 @@ private:
     }
 
     // execute a single move (white or black)
-    void _single_move(const chesspiece::color &color)
+    void _single_move(const std::vector<_movement> &positions)
     {
-        std::vector<_movement> positions = _available_positions(color);
-        if (positions.size() > 0)
-        {
-            _movement t = positions.at(rnd::get(0, positions.size() - 1));
-            set(t.to, *get(t.from));
-            set(t.from, chesspiece());
-            _history.add(t);
-        }
+        _movement t = positions.at(rnd::get(0, positions.size() - 1));
+        set(t.to, *get(t.from));
+        set(t.from, chesspiece());
+        _history.add(t);
     }
 
     // get the winner's color
     bool _get_winner(chesspiece::color &color)
     {
-        std::vector<_movement> positions = _available_positions(chesspiece::color::white);
-        std::vector<_movement> black_positions = _available_positions(chesspiece::color::black);
-        positions.insert(positions.end(), black_positions.begin(), black_positions.end());
-        if (positions.size() == 0)
-        {
-            color = chesspiece::color::empty_color;
-            return true;
-        }
-
         return false;
     }
 
@@ -401,21 +388,23 @@ public:
         std::cout << "---- STOP ----" << std::endl;
     }
 
-    void game_turn()
-    {
-        _single_move(chesspiece::color::white);
-        _single_move(chesspiece::color::black);
-    }
-
     void play()
     {
         _history.start_play();
         chesspiece::color winner;
         do
         {
-            _single_move(chesspiece::color::white);
+            std::vector<_movement> positions = _available_positions(chesspiece::color::white);
+            if (positions.size() == 0)
+                break;
+            _single_move(positions);
             if (!_get_winner(winner))
-                _single_move(chesspiece::color::black);
+            {
+                positions = _available_positions(chesspiece::color::black);
+                if (positions.size() == 0)
+                    break;
+                _single_move(positions);
+            }
         } while (!_get_winner(winner));
         _history.end_play();
     }
