@@ -49,11 +49,4 @@ int main(int argc, char *argv[])
 	}
 	std::cout << (float)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count()) / max << std::endl;
 	ch.save(std::to_string(std::time(nullptr)) + ".tgi");
-
-	//// get movements
-	// std::vector<std::vector<_movement>> movs = chessboardhistory::from_file("output.tgi");
-	// ch.setup();
-	// ch.show();
-	// ch.random_play(movs[0]);
-	// ch.show();
 }
