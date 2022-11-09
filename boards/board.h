@@ -69,11 +69,14 @@ public:
     }
 
     // get a TBoard piece on the n-board by coordinates
+    // true is inside the board
+    // false is outside the board
+    // piece is nullptr is nothing found on that coords
     TBoard *get(const std::vector<unsigned int> &coords)
     {
         unsigned int pos;
         if (_check(coords, pos))
-            return &_board[pos];
+            return _board + pos;
         return nullptr;
     }
 
@@ -93,6 +96,12 @@ public:
     void game_turn()
     {
         throw std::logic_error("game_turn not implemented");
+    }
+
+    // execute a full game randomly
+    void random_play()
+    {
+        throw std::logic_error("random_play not implemented");
     }
 
     // execute a full game

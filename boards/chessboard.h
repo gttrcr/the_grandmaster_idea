@@ -34,7 +34,7 @@ private:
     color _color;
 
 public:
-    chesspiece(value value = value::empty_value, color color = color::empty_color)
+    chesspiece(value value = chesspiece::value::empty_value, color color = chesspiece::color::empty_color)
     {
         _value = value;
         _color = color;
@@ -52,7 +52,14 @@ public:
 
     bool is_empty()
     {
-        return _color == color::empty_color && _value == value::empty_value;
+        return _color == chesspiece::color::empty_color || _value == chesspiece::value::empty_value;
+    }
+
+    chesspiece::color get_opponent_color()
+    {
+        if (_color == chesspiece::color::white)
+            return chesspiece::color::black;
+        return chesspiece::color::white;
     }
 
     std::string to_string()
@@ -113,6 +120,8 @@ public:
     std::vector<unsigned int> from;
     std::vector<unsigned int> to;
 
+    _movement() = default;
+
     _movement(const std::vector<unsigned int> &_from, const std::vector<unsigned int> &_to)
     {
         from = _from;
@@ -130,7 +139,7 @@ private:
     std::vector<std::string> _plays;
 
 public:
-    void start_play()
+    void start()
     {
         _size = 0;
         _history.reset();
@@ -173,7 +182,7 @@ public:
         return str;
     }
 
-    void end_play()
+    void stop()
     {
         _plays.push_back(to_string());
         _history.reset();
@@ -253,26 +262,42 @@ private:
     chessboardhistory _history;
 
     // provides the list of positions of a single piece by coordinate
-    void _piece_available_positions(unsigned int x, unsigned int y, std::vector<_movement> &positions)
+    bool _piece_available_positions(const unsigned int x, const unsigned int y, std::vector<_movement> &positions, const bool &first_random = false)
     {
         chesspiece *target = get({x, y});
+        chesspiece *p;
         switch (target->get_value())
         {
         case chesspiece::value::pawn:
         {
-            chesspiece *p;
-            int dir = 2 * (get({x, y})->get_color() == chesspiece::color::white) - 1; // 1 for white, -1 for black
+            int dir = 2 * (target->get_color() == chesspiece::color::white) - 1; // 1 for white, -1 for black
             if ((p = get({x, y + dir})) != nullptr && p->is_empty())
+            {
                 positions.push_back(_movement({x, y}, {x, y + dir})); // if the cell is empty, can move but nothing to capture
-            if ((p = get({x - 1, y + dir})) != nullptr && !p->is_empty() && target->get_color() != p->get_color())
+                if (first_random)
+                    return true;
+            }
+            if ((p = get({x - 1, y + dir})) != nullptr && !p->is_empty() && target->get_color() == p->get_opponent_color())
+            {
                 positions.push_back(_movement({x, y}, {x - 1, y + dir})); // if the cell is not empty, can move and capture
-            if ((p = get({x + 1, y + dir})) != nullptr && !p->is_empty() && target->get_color() != p->get_color())
+                if (first_random)
+                    return true;
+            }
+            if ((p = get({x + 1, y + dir})) != nullptr && !p->is_empty() && target->get_color() != p->get_opponent_color())
+            {
                 positions.push_back(_movement({x, y}, {x + 1, y + dir})); // if the cell is not empty, can move and capture
+                if (first_random)
+                    return true;
+            }
             break;
+            // EN-PASSENT
         }
         case chesspiece::value::rook:
         {
-            break;
+            // move on x
+            for (unsigned int i = x; i < *get_board_sizes(); i++)
+                if ((p = get({i, y})) != nullptr && target->get_color())
+                    break;
         }
         case chesspiece::value::knight:
         {
@@ -293,28 +318,42 @@ private:
         default:
             break;
         }
+
+        return false;
     }
 
     // provides the list of positions of pieces by color
-    std::vector<_movement> _available_positions(const chesspiece::color &color)
+    bool _available_positions(const chesspiece::color &color, std::vector<_movement> &movs, const bool &first_random = false)
     {
-        std::vector<_movement> positions;
+        movs.clear();
         chesspiece *p;
         for (unsigned int x = 0; x < *get_board_sizes(); x++)
             for (unsigned int y = 0; y < *(get_board_sizes() + 1); y++)
                 if ((p = get({x, y})) != nullptr && p->get_color() == color)
-                    _piece_available_positions(x, y, positions);
+                    if (_piece_available_positions(x, y, movs, first_random) && first_random)
+                        return true;
 
-        return positions;
+        return false;
     }
 
-    // execute a single move (white or black)
-    void _single_move(const std::vector<_movement> &positions)
+    bool _random_available_position(const chesspiece::color &color, _movement &mov)
     {
-        _movement t = positions.at(rnd::get(0, positions.size() - 1));
-        set(t.to, *get(t.from));
-        set(t.from, chesspiece());
-        _history.add(t);
+        std::vector<_movement> movs;
+        if (_available_positions(color, movs, true))
+        {
+            mov = movs[rnd::get(0, movs.size() - 1)];
+            return true;
+        }
+
+        return false;
+    }
+
+    // execute a single move
+    void _single_move(const _movement &mov)
+    {
+        set(mov.to, *get(mov.from));
+        set(mov.from, chesspiece());
+        _history.add(mov);
     }
 
     // get the winner's color
@@ -388,25 +427,27 @@ public:
         std::cout << "---- STOP ----" << std::endl;
     }
 
-    void play()
+    void random_play()
     {
-        _history.start_play();
+        _history.start();
         chesspiece::color winner;
+        _movement mov;
         do
         {
-            std::vector<_movement> positions = _available_positions(chesspiece::color::white);
-            if (positions.size() == 0)
+            _movement mov;
+            if (_random_available_position(chesspiece::color::white, mov))
+                _single_move(mov);
+            else
                 break;
-            _single_move(positions);
             if (!_get_winner(winner))
             {
-                positions = _available_positions(chesspiece::color::black);
-                if (positions.size() == 0)
+                if (_random_available_position(chesspiece::color::black, mov))
+                    _single_move(mov);
+                else
                     break;
-                _single_move(positions);
             }
         } while (!_get_winner(winner));
-        _history.end_play();
+        _history.stop();
     }
 
     void play(std::vector<_movement> &movs)
