@@ -10,6 +10,8 @@
                 "${file}",
                 "-Wall",
                 "-O3",
+                "-std=c++17",
+                "-ltbb",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],
