@@ -21,7 +21,6 @@ namespace board
     public:
         void start()
         {
-            _plays.clear();
             _size = 0;
             _history.reset();
         }
@@ -65,7 +64,7 @@ namespace board
 
         void stop()
         {
-            _plays.push_back(to_string());
+            _plays.push_back(to_string()); // TODO - improve performances
         }
 
         void save(const std::string &file_name)
