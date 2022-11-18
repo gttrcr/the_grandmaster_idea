@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "movement.h"
+#include "movement2d.h"
 
 #define MAX_BITSET 10000
 
@@ -25,21 +25,34 @@ namespace board
             _history.reset();
         }
 
-        void add(const movement &mov)
+        void add(const movement2d &mov)
         {
-            for (unsigned int i = 0; i < mov.from.size(); i++)
-            {
-                _size += 3;
-                _history <<= 3;
-                _history |= std::bitset<MAX_BITSET>(mov.from[i]);
-            }
+            // for (unsigned int i = 0; i < mov.from.size(); i++)
+            //{
+            //     _size += 3;
+            //     _history <<= 3;
+            //     _history |= std::bitset<MAX_BITSET>(mov.from[i]);
+            // }
+            //
+            // for (unsigned int i = 0; i < mov.to.size(); i++)
+            //{
+            //    _size += 3;
+            //    _history <<= 3;
+            //    _history |= std::bitset<MAX_BITSET>(mov.to[i]);
+            //}
 
-            for (unsigned int i = 0; i < mov.to.size(); i++)
-            {
-                _size += 3;
-                _history <<= 3;
-                _history |= std::bitset<MAX_BITSET>(mov.to[i]);
-            }
+            _size += 3;
+            _history <<= 3;
+            _history |= std::bitset<MAX_BITSET>(mov.from_x);
+            _size += 3;
+            _history <<= 3;
+            _history |= std::bitset<MAX_BITSET>(mov.from_y);
+            _size += 3;
+            _history <<= 3;
+            _history |= std::bitset<MAX_BITSET>(mov.to_x);
+            _size += 3;
+            _history <<= 3;
+            _history |= std::bitset<MAX_BITSET>(mov.to_y);
         }
 
         std::string to_string()
@@ -79,10 +92,10 @@ namespace board
             }
         }
 
-        static std::vector<movement> from_history(const std::string &str_hist)
+        static std::vector<movement2d> from_history(const std::string &str_hist)
         {
             // the structure is 00xxxyyy|00xxxyyy|00xxxyyy|00xxxyyy
-            std::vector<movement> movs;
+            std::vector<movement2d> movs;
             for (unsigned int i = 0; i < str_hist.size(); i += 4)
             {
                 std::bitset<32> move((unsigned char)str_hist[i]);
@@ -104,7 +117,7 @@ namespace board
                 if (white_from[0] == 0 && white_from[1] == 0 && white_to[0] == 0 && white_to[1] == 0)
                     break;
                 else
-                    movs.push_back(movement(white_from, white_to));
+                    movs.push_back(movement2d(white_from[0], white_from[1], white_to[0], white_to[1]));
 
                 std::vector<unsigned int> black_from;
                 black_from.push_back(move[11] + move[12] * 2 + move[13] * 4); // x
@@ -116,15 +129,15 @@ namespace board
                 if (black_from[0] == 0 && black_from[1] == 0 && black_to[0] == 0 && black_to[1] == 0)
                     break;
                 else
-                    movs.push_back(movement(black_from, black_to));
+                    movs.push_back(movement2d(black_from[0], black_from[1], black_to[0], black_to[1]));
             }
 
             return movs;
         }
 
-        static std::vector<std::vector<movement>> from_file(const std::string &file_name)
+        static std::vector<std::vector<movement2d>> from_file(const std::string &file_name)
         {
-            std::vector<std::vector<movement>> movs;
+            std::vector<std::vector<movement2d>> movs;
             std::ifstream input(file_name);
             for (std::string line; getline(input, line);)
                 if (line.size() > 0)

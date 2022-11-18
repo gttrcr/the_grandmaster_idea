@@ -10,7 +10,7 @@ the_grandmaster_idea is a simulation software to explore the deep structure of b
 To compile source code with g++
 ```
 git submodule update --init --recursive
-g++ the_grandmaster_idea.cpp -o the_grandmaster_idea -O3 -Wall -std=c++17 -ltbb
+g++ the_grandmaster_idea.cpp -o the_grandmaster_idea -O3 -Wall
 ```
 The source code allows you to measure a lot of properties of chess games, in particular
 * number of moves per game

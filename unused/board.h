@@ -122,7 +122,7 @@ namespace board
             {
                 for (unsigned int y = 0; y < *get_board_sizes(); y++)
                 {
-                    get({y, *(get_board_sizes() + 1) - x - 1}, p);
+                    get(y, *(get_board_sizes() + 1) - x - 1}, p);
                     std::cout << p.to_string() << " ";
                 }
                 std::cout << std::endl;
@@ -131,7 +131,7 @@ namespace board
         }
 
         // execute a single move
-        void single_move(const movement &mov)
+        void single_move(const movement2d &mov)
         {
             TBoard p;
             get(mov.from, p);
