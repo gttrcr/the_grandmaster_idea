@@ -1,4 +1,4 @@
-#include "../board/chessboard.h"
+#include "../chess/chessboard.h"
 
 #include <thread>
 #include <tbb/parallel_for.h>

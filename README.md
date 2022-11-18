@@ -42,6 +42,7 @@ Hence the information: white pawn A4->A5 and black knight G6->E5 is stored insid
 The average duration of a single board::play_random() in µs is considered an index of the goodness of the code
 |time|CPU|duration (µs)|time for 10⁹ plays (hours)|
 |:-:|:-:|:-:|:-:|
+|18 november 2022|Intel(R) Core(TM) i7-8565U CPU|33.106|9|
 |14 november 2022|Intel(R) Core(TM) i7-8565U CPU|232.106|64|
 |9 november 2022|Intel(R) Core(TM) i7-8565U CPU|267.363|74|
 |15 september 2022|Intel(R) Core(TM) i7-8565U CPU|478.519|133|
