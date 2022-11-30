@@ -7,10 +7,17 @@ The game of chess is probably one of the most complex board games to describe ma
 the_grandmaster_idea is a simulation software to explore the deep structure of board games
 
 # Source code
-To compile source code with g++
+Install tbb libraries
+```
+sudo apt install libtbb-dev
+```
+Download submodules (if any)
 ```
 git submodule update --init --recursive
-g++ the_grandmaster_idea.cpp -o the_grandmaster_idea -O3 -Wall
+```
+Compile source code with g++
+```
+g++ the_grandmaster_idea.cpp -o the_grandmaster_idea -O3 -Wall -ltbb
 ```
 The source code allows you to measure a lot of properties of chess games, in particular
 * number of moves per game
