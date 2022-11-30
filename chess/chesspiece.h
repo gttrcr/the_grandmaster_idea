@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace board
+namespace chess
 {
     class chesspiece
     {

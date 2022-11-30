@@ -28,7 +28,7 @@ namespace board
                 return false;
 
             pos = x + y * *_sizes;
-            if (pos > _cells)
+            if (pos > _cells - 1)
                 return false;
 
             return true;
@@ -139,13 +139,10 @@ namespace board
             get(mov.from_x, mov.from_y, p);
             set(mov.to_x, mov.to_y, p);
             set(mov.from_x, mov.from_y, TBoard());
+#ifdef OUTPUT
+            show();
+#endif
             _history.add(mov);
-        }
-
-        // get the winner
-        bool get_winner(TBoard &winner)
-        {
-            throw std::logic_error("get_winner not implemented");
         }
 
 #pragma endregion LOGIC

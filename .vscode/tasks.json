@@ -6,10 +6,10 @@
             "command": "C:\\Program Files\\msys64\\mingw64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
-                //"-g",
+                "-g",
                 "${file}",
                 "-Wall",
-                "-O3",
+                //"-O3",
                 "-std=c++17",
                 "-ltbb",
                 "-o",

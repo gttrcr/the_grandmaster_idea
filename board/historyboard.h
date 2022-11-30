@@ -77,7 +77,7 @@ namespace board
 
         void stop()
         {
-            _plays.push_back(to_string()); // TODO - improve performances
+            _plays.push_back(to_string());
         }
 
         void save(const std::string &file_name)
@@ -92,7 +92,7 @@ namespace board
             }
         }
 
-        static std::vector<movement2d> from_history(const std::string &str_hist)
+        static inline std::vector<movement2d> from_history(const std::string &str_hist)
         {
             // the structure is 00xxxyyy|00xxxyyy|00xxxyyy|00xxxyyy
             std::vector<movement2d> movs;
@@ -135,7 +135,7 @@ namespace board
             return movs;
         }
 
-        static std::vector<std::vector<movement2d>> from_file(const std::string &file_name)
+        static inline std::vector<std::vector<movement2d>> from_file(const std::string &file_name)
         {
             std::vector<std::vector<movement2d>> movs;
             std::ifstream input(file_name);
