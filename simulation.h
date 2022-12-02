@@ -1,7 +1,11 @@
 #include "chess/chessboard.h"
 
 #include <thread>
-#include <tbb/parallel_for.h>
+//#include <tbb/parallel_for_each.h>
+
+#include <execution>
+#include <algorithm>
+#include <functional>
 
 namespace simulation
 {
@@ -25,11 +29,12 @@ namespace simulation
     static inline void simulations(const unsigned int n_sims, const bool &save)
     {
         const uint32_t thread_nums = std::thread::hardware_concurrency();
+        std::vector<std::tuple<unsigned int, unsigned int>> blocks;
+        for (unsigned int i = 0; i < thread_nums; i++)
+            blocks.push_back(std::make_tuple(i * n_sims / thread_nums, (i + 1) * n_sims / thread_nums));
+
         std::string timestamp = std::to_string(std::time(nullptr));
-        tbb::parallel_for(tbb::blocked_range<unsigned int>(0, n_sims, n_sims / thread_nums),
-                          [&timestamp, &save](tbb::blocked_range<unsigned int> r)
-                          {
-                              simulation(timestamp + "#" + std::to_string(r.begin()), r.end() - r.begin(), save);
-                          });
+        std::for_each(std::execution::par, blocks.begin(), blocks.end(), [&timestamp, &save](std::tuple<unsigned int, unsigned int> &block)
+                      { simulation(timestamp + "#" + std::to_string(std::get<0>(block)), std::get<1>(block) - std::get<0>(block), save); });
     }
 }
