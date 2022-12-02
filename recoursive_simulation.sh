@@ -1,27 +1,29 @@
-if [ ! -f counter ]
+rm *.tgi tmp_single simulation
+
+if [ ! -f total ]
 then
-    echo 0 > counter
+	echo 0 > total
 fi
 
 for (( i=1; i<=$1; i++ ))
 do
-        #echo "$i) playing..."
-        ./the_grandmaster_idea > /dev/null
+	echo "$i) playing..."
+	./the_grandmaster_idea > /dev/null
 
-        #echo "merging..."
-        cat *.tgi > simulation
-
-        #echo "counting..."
-        echo $(( $(wc -l simulation | cut -d' ' -f1) + $(<counter) )) > counter
-        rm *.tgi
-
-        #echo "sorting..."
-        sort simulation | uniq >> single
-        rm simulation
-        sort single | uniq > tmp_single
-        mv tmp_single single
-
-        echo "$(wc -l single | cut -d' ' -f1) uniq over $(<counter) simulations"
+	echo "merging..."
+	cat *.tgi >> simulation
+	rm *.tgi
 done
 
-echo "DONE ALL"
+echo "updating total..."
+echo $(( $(wc -l simulation | cut -d' ' -f1) + $(<total) )) > total
+
+echo "merging simulation..."
+cat simulation >> single
+rm simulation
+
+echo "sorting..."
+sort single | uniq > tmp_single
+mv tmp_single single
+
+echo "DONE ALL! $(wc -l single) over $(<total)"
