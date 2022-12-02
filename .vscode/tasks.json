@@ -4,6 +4,7 @@
             "type": "cppbuild",
             "label": "C/C++: g++.exe compila il file attivo",
             "command": "C:\\Program Files\\msys64\\mingw64\\bin\\g++.exe",
+            //"command": "/usr/bin/g++",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
@@ -13,7 +14,8 @@
                 "-std=c++17",
                 "-ltbb",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                //"${fileBasenameNoExtension}",
             ],
             "options": {
                 "cwd": "${fileDirname}"
