@@ -116,7 +116,7 @@ namespace chess
         void _available_positions(const board::chesspiece::color &color, std::vector<board::movement2d> &movs, const board::chesspiece::value &filter_by_value = board::chesspiece::value::empty_value)
         {
             board::chesspiece p;
-            for (unsigned int x = 0; x < 3; x++)
+            for (unsigned int x = 0; x < *get_board_sizes(); x++)
                 for (unsigned int y = 0; y < *(get_board_sizes() + 1); y++)
                     if (get(x, y, p) && p.get_color() == color)
                         if (filter_by_value == board::chesspiece::value::empty_value || filter_by_value == p.get_value())
