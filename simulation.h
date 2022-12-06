@@ -1,4 +1,4 @@
-#include "chess/chessboard.h"
+#include "chessboard.h"
 
 #include <thread>
 //#include <tbb/parallel_for_each.h>
@@ -12,7 +12,7 @@ namespace simulation
     static inline void simulation(const std::string &simulation_name, const unsigned int &n_sims, const bool &save)
     {
         chess::chessboard ch;
-        chess::chesspiece::color winner;
+        board::chesspiece::color winner;
         for (unsigned int i = 0; i < n_sims; i++)
         {
             ch.setup_board();

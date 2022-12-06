@@ -5,11 +5,11 @@
 #include <algorithm>
 
 #include "historyboard.h"
+#include "chesspiece.h"
 
 namespace board
 {
-    // TBoard is the type of elements on the board
-    template <class TBoard>
+    // board::chesspiece is the type of elements on the board
     class board2d
     {
     protected:
@@ -19,7 +19,8 @@ namespace board
         unsigned int *_sizes;           // sizes is the dimensionality of the board (a line has 1 value, a square has 2 values, a cube has 3, ...)
         const unsigned int _dimensions; // dimension of the board (1 for line, 2 for square, 3 for cube, ...): it is the length of *_sizes
         unsigned int _cells;            // total number of cells
-        TBoard *_board;
+        // board::chesspiece _board[64];
+        std::vector<board::chesspiece> _board;
 
         // check if the position is correct, if it is the correct value is pos
         bool _check_pos(const unsigned int &x, const unsigned int &y, unsigned int &pos)
@@ -52,20 +53,21 @@ namespace board
             _cells = 1;
             for (unsigned int i = 0; i < _dimensions; i++)
                 _cells *= *(_sizes + i);
-            _board = new TBoard[_cells];
+            _board = new board::chesspiece[_cells];
             */
 
             _sizes = new unsigned int[_dimensions];
             _sizes[0] = y;
             _sizes[1] = x;
             _cells = x * y;
-            _board = new TBoard[_cells];
+            //_board = new board::chesspiece[_cells];
+            _board = std::vector<board::chesspiece>(_cells);
         }
 
         ~board2d()
         {
             delete[] _sizes;
-            delete[] _board;
+            // delete[] _board;
         }
 
         unsigned int *get_board_sizes()
@@ -78,8 +80,8 @@ namespace board
             return _dimensions;
         }
 
-        // set a TBoard piece on the n-board by coordinates
-        void set(const unsigned int &x, const unsigned int &y, const TBoard &p)
+        // set a board::chesspiece piece on the n-board by coordinates
+        void set(const unsigned int &x, const unsigned int &y, const board::chesspiece &p)
         {
             unsigned int pos;
             if (_check_pos(x, y, pos))
@@ -88,17 +90,18 @@ namespace board
                 throw std::logic_error("error on setting value");
         }
 
-        // get a TBoard piece on the n-board by coordinates
+        // get a board::chesspiece piece on the n-board by coordinates
         // true is inside the board
         // false is outside the board
         // if true, then piece is nullptr if nothing found on that coords
         // if true and piece is not nullptr, then get return the piece of that coords
-        bool get(const unsigned int &x, const unsigned int &y, TBoard &piece)
+        bool get(const unsigned int &x, const unsigned int &y, board::chesspiece &piece)
         {
             unsigned int pos;
             if (_check_pos(x, y, pos))
             {
-                piece = *(_board + pos);
+                // piece = *(_board + pos);
+                piece = _board[pos];
                 return true;
             }
 
@@ -125,7 +128,7 @@ namespace board
         void show()
         {
             std::cout << "---- START -----" << std::endl;
-            TBoard p;
+            board::chesspiece p;
             for (unsigned int x = 0; x < *(get_board_sizes() + 1); x++)
             {
                 for (unsigned int y = 0; y < *get_board_sizes(); y++)
@@ -141,14 +144,14 @@ namespace board
         // execute a single move
         void single_move(const movement2d &mov)
         {
-            TBoard p;
+            board::chesspiece p;
             get(mov.from_x, mov.from_y, p);
             set(mov.to_x, mov.to_y, p);
-            set(mov.from_x, mov.from_y, TBoard());
+            set(mov.from_x, mov.from_y, board::chesspiece());
 #ifdef OUTPUT
             show();
 #endif
-            _history.add(mov);
+            _history.add(mov, _board);
         }
 
 #pragma endregion LOGIC
@@ -156,13 +159,13 @@ namespace board
 #pragma region NORMAL_GAME
 
         // execute a complete game_turn on the board
-        bool game_turn(TBoard &winner)
+        bool game_turn(board::chesspiece &winner)
         {
             throw std::logic_error("game_turn not implemented");
         }
 
         // execute a full game. play is a sequence of game_turn
-        void play(TBoard &winner)
+        void play(board::chesspiece &winner)
         {
             throw std::logic_error("play not implemented");
         }
@@ -172,13 +175,13 @@ namespace board
 #pragma region RANDOM_GAME
 
         // execute a complete random game_turn on the board
-        bool game_turn_random(TBoard &winner)
+        bool game_turn_random(board::chesspiece &winner)
         {
             throw std::logic_error("game_turn_random not implemented");
         }
 
         // execute a full game randomly
-        void play_random(TBoard &winner)
+        void play_random(board::chesspiece &winner)
         {
             throw std::logic_error("random_play not implemented");
         }

@@ -4,8 +4,10 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <bits/stdc++.h>
 
 #include "movement2d.h"
+#include "chesspiece.h"
 
 #define MAX_BITSET 10000
 
@@ -17,7 +19,9 @@ namespace board
         unsigned int _size = 0;
         std::bitset<MAX_BITSET> _history;
         std::vector<std::string> _plays;
+        std::map<std::string, unsigned int> _boards;
         const std::bitset<MAX_BITSET> _filter = std::bitset<MAX_BITSET>(63);
+        bool _triple;
 
         std::string _to_string()
         {
@@ -33,14 +37,25 @@ namespace board
             return str;
         }
 
+        std::string _hash(std::vector<board::chesspiece> &board)
+        {
+            std::string hash = "";
+            for (unsigned int i = 0; i < board.size(); i++)
+                hash += board[i].to_string();
+
+            return hash;
+        }
+
     public:
         void start()
         {
             _size = 0;
+            _triple = false;
             _history.reset();
+            _boards.clear();
         }
 
-        void add(const movement2d &mov)
+        void add(const movement2d &mov, std::vector<board::chesspiece> board)
         {
             // for (unsigned int i = 0; i < mov.from.size(); i++)
             //{
@@ -55,6 +70,11 @@ namespace board
             //    _history <<= 3;
             //    _history |= std::bitset<MAX_BITSET>(mov.to[i]);
             //}
+
+            std::string hash = _hash(board);
+            _boards[hash]++;
+            if (_boards[hash] == 3)
+                _triple = true;
 
             //_size += 3;
             _history <<= 3;
@@ -85,6 +105,11 @@ namespace board
                     output << _plays[i] << std::endl;
                 output.close();
             }
+        }
+
+        bool triple()
+        {
+            return _triple;
         }
 
         static inline std::vector<movement2d> from_history(const std::string &str_hist)
