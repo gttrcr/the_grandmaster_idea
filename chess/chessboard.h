@@ -1,11 +1,11 @@
 #pragma once
 
-//#define OUTPUT //show the board and the winner (very very slow!)
+//#define OUTPUT // show the board and the winner (very very slow!)
 
 // define pieces you want to play with
-#define PAWN
+//#define PAWN
 //#define ROOK
-//#define KNIGHT
+#define KNIGHT
 //#define BISHOP
 //#define KING
 //#define QUEEN
@@ -55,6 +55,22 @@ namespace chess
 #ifdef KNIGHT
             case chesspiece::value::knight:
             {
+                if (get(x - 1, y + 2, p) && (p.is_empty() || (!p.is_empty() && target.get_color() == p.get_opponent_color())))
+                    positions.push_back(board::movement2d(x, y, x - 1, y + 2));
+                if (get(x + 1, y + 2, p) && (p.is_empty() || (!p.is_empty() && target.get_color() == p.get_opponent_color())))
+                    positions.push_back(board::movement2d(x, y, x + 1, y + 2));
+                if (get(x + 2, y + 1, p) && (p.is_empty() || (!p.is_empty() && target.get_color() == p.get_opponent_color())))
+                    positions.push_back(board::movement2d(x, y, x + 2, y + 1));
+                if (get(x + 2, y - 1, p) && (p.is_empty() || (!p.is_empty() && target.get_color() == p.get_opponent_color())))
+                    positions.push_back(board::movement2d(x, y, x + 2, y - 1));
+                if (get(x + 1, y - 2, p) && (p.is_empty() || (!p.is_empty() && target.get_color() == p.get_opponent_color())))
+                    positions.push_back(board::movement2d(x, y, x + 1, y - 2));
+                if (get(x - 1, y - 2, p) && (p.is_empty() || (!p.is_empty() && target.get_color() == p.get_opponent_color())))
+                    positions.push_back(board::movement2d(x, y, x - 1, y - 2));
+                if (get(x - 2, y - 1, p) && (p.is_empty() || (!p.is_empty() && target.get_color() == p.get_opponent_color())))
+                    positions.push_back(board::movement2d(x, y, x - 2, y - 1));
+                if (get(x - 2, y + 1, p) && (p.is_empty() || (!p.is_empty() && target.get_color() == p.get_opponent_color())))
+                    positions.push_back(board::movement2d(x, y, x - 2, y + 1));
                 break;
             }
 #endif
@@ -307,6 +323,7 @@ namespace chess
         // execute a full game randomly
         void play_random(chesspiece::color &winner)
         {
+            winner = chesspiece::color::empty_color;
             _history.start();
             while (!game_turn_random(winner))
                 ;

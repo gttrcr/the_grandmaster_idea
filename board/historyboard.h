@@ -17,6 +17,21 @@ namespace board
         unsigned int _size = 0;
         std::bitset<MAX_BITSET> _history;
         std::vector<std::string> _plays;
+        const std::bitset<MAX_BITSET> _filter = std::bitset<MAX_BITSET>(63);
+
+        std::string _to_string()
+        {
+            std::string str = "";
+            std::bitset<MAX_BITSET> single_char;
+            for (unsigned int i = _size; i > 0; i--)
+            {
+                single_char = _history >> 6 * (i - 1);
+                str += (unsigned char)(32 + single_char.to_ullong());
+                _history = _history & (_filter << 6 * (i - 1)).flip();
+            }
+
+            return str;
+        }
 
     public:
         void start()
@@ -41,43 +56,23 @@ namespace board
             //    _history |= std::bitset<MAX_BITSET>(mov.to[i]);
             //}
 
-            _size += 3;
+            //_size += 3;
             _history <<= 3;
             _history |= std::bitset<MAX_BITSET>(mov.from_x);
-            _size += 3;
+            //_size += 3;
             _history <<= 3;
             _history |= std::bitset<MAX_BITSET>(mov.from_y);
-            _size += 3;
+            //_size += 3;
             _history <<= 3;
             _history |= std::bitset<MAX_BITSET>(mov.to_x);
-            _size += 3;
+            _size += 2;
             _history <<= 3;
             _history |= std::bitset<MAX_BITSET>(mov.to_y);
         }
 
-        std::string to_string()
-        {
-            std::string str = "";
-            std::bitset<6> single_char;
-            for (unsigned int h = 0; h < _size; h += single_char.size())
-            {
-                for (unsigned int i = 0; i < single_char.size(); i++)
-                {
-                    if ((int)_size - 1 - (int)h - (int)i < 0)
-                        single_char.set(single_char.size() - 1 - i, false);
-                    else
-                        single_char.set(single_char.size() - 1 - i, _history[_size - 1 - h - i]);
-                }
-
-                str += (unsigned char)(32 + single_char.to_ullong());
-            }
-
-            return str;
-        }
-
         void stop()
         {
-            _plays.push_back(to_string());
+            _plays.push_back(_to_string());
         }
 
         void save(const std::string &file_name)
@@ -98,38 +93,33 @@ namespace board
             std::vector<movement2d> movs;
             for (unsigned int i = 0; i < str_hist.size(); i += 4)
             {
-                std::bitset<32> move((unsigned char)str_hist[i]);
-                move <<= 8;
-                move |= std::bitset<32>((unsigned char)str_hist[i + 1]);
-                move <<= 8;
-                move |= std::bitset<32>((unsigned char)str_hist[i + 2]);
-                move <<= 8;
-                move |= std::bitset<32>((unsigned char)str_hist[i + 3]);
+                std::bitset<24> move((unsigned char)str_hist[i] - 32);
+                move <<= 6;
+                move |= std::bitset<24>((unsigned char)str_hist[i + 1] - 32);
+                move <<= 6;
+                move |= std::bitset<24>((unsigned char)str_hist[i + 2] - 32);
+                move <<= 6;
+                move |= std::bitset<24>((unsigned char)str_hist[i + 3] - 32);
 
-                std::cout << move.to_string() << std::endl;
+                unsigned int white_from_x = move[21] + move[22] * 2 + move[23] * 4; // x
+                unsigned int white_from_y = move[18] + move[19] * 2 + move[20] * 4; // y
+                unsigned int white_to_x = move[15] + move[16] * 2 + move[17] * 4;   // x
+                unsigned int white_to_y = move[12] + move[13] * 2 + move[14] * 4;   // y
 
-                std::vector<unsigned int> white_from;
-                white_from.push_back(move[27] + move[28] * 2 + move[29] * 4); // x
-                white_from.push_back(move[24] + move[25] * 2 + move[26] * 4); // y
-                std::vector<unsigned int> white_to;
-                white_to.push_back(move[19] + move[20] * 2 + move[21] * 4); // x
-                white_to.push_back(move[16] + move[17] * 2 + move[18] * 4); // y
-                if (white_from[0] == 0 && white_from[1] == 0 && white_to[0] == 0 && white_to[1] == 0)
-                    break;
-                else
-                    movs.push_back(movement2d(white_from[0], white_from[1], white_to[0], white_to[1]));
+                // if (white_from[0] == 0 && white_from[1] == 0 && white_to[0] == 0 && white_to[1] == 0)
+                //     throw std::exception();
+                // else
+                movs.push_back(movement2d(white_from_x, white_from_y, white_to_x, white_to_y));
 
-                std::vector<unsigned int> black_from;
-                black_from.push_back(move[11] + move[12] * 2 + move[13] * 4); // x
-                black_from.push_back(move[8] + move[9] * 2 + move[10] * 4);   // y
-                std::vector<unsigned int> black_to;
-                black_to.push_back(move[3] + move[4] * 2 + move[5] * 4); // x
-                black_to.push_back(move[0] + move[1] * 2 + move[2] * 4); // y
+                unsigned int black_from_x = move[9] + move[10] * 2 + move[11] * 4; // x
+                unsigned int black_from_y = move[6] + move[7] * 2 + move[8] * 4;   // y
+                unsigned int black_to_x = move[3] + move[4] * 2 + move[5] * 4;     // x
+                unsigned int black_to_y = move[0] + move[1] * 2 + move[2] * 4;     // y
 
-                if (black_from[0] == 0 && black_from[1] == 0 && black_to[0] == 0 && black_to[1] == 0)
-                    break;
-                else
-                    movs.push_back(movement2d(black_from[0], black_from[1], black_to[0], black_to[1]));
+                // if (black_from[0] == 0 && black_from[1] == 0 && black_to[0] == 0 && black_to[1] == 0)
+                //     throw std::exception();
+                // else
+                movs.push_back(movement2d(black_from_x, black_from_y, black_to_x, black_to_y));
             }
 
             return movs;

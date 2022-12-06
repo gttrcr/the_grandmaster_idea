@@ -17,7 +17,7 @@ git submodule update --init --recursive
 ```
 Compile source code with g++
 ```
-g++ the_grandmaster_idea.cpp -o the_grandmaster_idea -O3 -Wall -ltbb
+g++ the_grandmaster_idea.cpp -o the_grandmaster_idea -O3 -Wall -ltbb -std=c++17
 ```
 The source code allows you to measure a lot of properties of chess games, in particular
 * number of moves per game

@@ -4,13 +4,13 @@
 
 std::random_device rd;
 std::mt19937_64 _rng(rd());
+std::uniform_int_distribution<long long unsigned int> uid(0, UINT64_MAX);
 
 class rnd
 {
 public:
     inline static unsigned int get(unsigned int min, unsigned int max)
     {
-        std::uniform_int_distribution<int> uid(min, max);
-        return uid(_rng);
+        return min + uid(_rng) % (max - min + 1);
     }
 };

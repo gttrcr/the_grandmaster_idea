@@ -1,3 +1,4 @@
+g++ the_grandmaster_idea.cpp -o the_grandmaster_idea -O3 -Wall -ltbb -std=c++17
 rm *.tgi tmp_single simulation
 
 if [ ! -f total ]
@@ -8,7 +9,7 @@ fi
 for (( i=1; i<=$1; i++ ))
 do
 	echo "$i) playing..."
-	./the_grandmaster_idea > /dev/null
+	./the_grandmaster_idea
 
 	echo "merging..."
 	cat *.tgi >> simulation

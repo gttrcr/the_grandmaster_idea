@@ -22,9 +22,9 @@ namespace board
         TBoard *_board;
 
         // check if the position is correct, if it is the correct value is pos
-        bool _check_get_pos(const unsigned int &x, const unsigned int &y, unsigned int &pos)
+        bool _check_pos(const unsigned int &x, const unsigned int &y, unsigned int &pos)
         {
-            if (x > *_sizes || y > *(_sizes + 1))
+            if (x > *_sizes - 1 || y > *(_sizes + 1) - 1)
                 return false;
 
             pos = x + y * *_sizes;
@@ -62,6 +62,12 @@ namespace board
             _board = new TBoard[_cells];
         }
 
+        ~board2d()
+        {
+            delete[] _sizes;
+            delete[] _board;
+        }
+
         unsigned int *get_board_sizes()
         {
             return _sizes;
@@ -76,7 +82,7 @@ namespace board
         void set(const unsigned int &x, const unsigned int &y, const TBoard &p)
         {
             unsigned int pos;
-            if (_check_get_pos(x, y, pos))
+            if (_check_pos(x, y, pos))
                 _board[pos] = p;
             else
                 throw std::logic_error("error on setting value");
@@ -90,7 +96,7 @@ namespace board
         bool get(const unsigned int &x, const unsigned int &y, TBoard &piece)
         {
             unsigned int pos;
-            if (_check_get_pos(x, y, pos))
+            if (_check_pos(x, y, pos))
             {
                 piece = *(_board + pos);
                 return true;

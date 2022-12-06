@@ -37,4 +37,15 @@ namespace simulation
         std::for_each(std::execution::par, blocks.begin(), blocks.end(), [&timestamp, &save](std::tuple<unsigned int, unsigned int> &block)
                       { simulation(timestamp + "#" + std::to_string(std::get<0>(block)), std::get<1>(block) - std::get<0>(block), save); });
     }
+
+    static inline void simulation(const std::vector<board::movement2d> &movs)
+    {
+        chess::chessboard ch;
+        ch.setup_board();
+        for (unsigned int i = 0; i < movs.size(); i++)
+        {
+            ch.single_move(movs[i]);
+            ch.show();
+        }
+    }
 }
