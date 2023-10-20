@@ -4,7 +4,7 @@
 #include <exception>
 #include <algorithm>
 
-#include "historyboard.h"
+//#include "historyboard.h"
 #include "chesspiece.h"
 
 namespace board
@@ -13,7 +13,7 @@ namespace board
     class board2d
     {
     protected:
-        historyboard _history;
+        // historyboard _history;
 
     private:
         unsigned int *_sizes;           // sizes is the dimensionality of the board (a line has 1 value, a square has 2 values, a cube has 3, ...)
@@ -108,10 +108,10 @@ namespace board
             return false;
         }
 
-        historyboard &get_history()
-        {
-            return _history;
-        }
+        // historyboard &get_history()
+        // {
+        //     return _history;
+        // }
 
 #pragma endregion CONSTRUCTOR_GETTER_SETTER
 
